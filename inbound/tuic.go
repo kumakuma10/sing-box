@@ -115,3 +115,11 @@ func (h *TUIC) Close() error {
 		common.PtrOrNil(h.server),
 	)
 }
+
+func (h *TUIC) AddUsers(users []option.TUICUser) error {
+	return h.server.AddUsers(users)
+}
+
+func (h *TUIC) DelUsers(uuids []string) error {
+	return h.server.DelUsers(uuids)
+}

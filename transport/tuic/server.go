@@ -6,6 +6,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/binary"
+	"github.com/inazumav/sing-box/option"
 	"github.com/sagernet/quic-go"
 	"io"
 	"net"
@@ -157,6 +158,32 @@ func (s *Server) Close() error {
 	return common.Close(
 		s.quicListener,
 	)
+}
+
+func (s *Server) AddUsers(users []option.TUICUser) error {
+	for _, u := range users {
+		uuid, err := uuid.FromString(u.UUID)
+		if err != nil {
+			return E.Cause(err, "invalid uuid for user ", u.UUID)
+		}
+		s.userMap[uuid] = User{
+			Name:     u.Name,
+			UUID:     uuid,
+			Password: u.Password,
+		}
+	}
+	return nil
+}
+
+func (s *Server) DelUsers(uuids []string) error {
+	for _, u := range uuids {
+		ud, err := uuid.FromString(u)
+		if err != nil {
+			return E.Cause(err, "invalid uuid for user ", ud)
+		}
+		delete(s.userMap, ud)
+	}
+	return nil
 }
 
 func (s *Server) handleConnection(connection quic.Connection) {
