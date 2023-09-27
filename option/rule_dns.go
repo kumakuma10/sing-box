@@ -3,8 +3,8 @@ package option
 import (
 	"reflect"
 
-	"github.com/inazumav/sing-box/common/json"
-	C "github.com/inazumav/sing-box/constant"
+	"github.com/kumakuma10/sing-box/common/json"
+	C "github.com/kumakuma10/sing-box/constant"
 	"github.com/sagernet/sing/common"
 	E "github.com/sagernet/sing/common/exceptions"
 )

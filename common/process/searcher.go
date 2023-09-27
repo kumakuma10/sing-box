@@ -5,7 +5,7 @@ import (
 	"net/netip"
 	"os/user"
 
-	"github.com/inazumav/sing-box/log"
+	"github.com/kumakuma10/sing-box/log"
 	"github.com/sagernet/sing-tun"
 	E "github.com/sagernet/sing/common/exceptions"
 	F "github.com/sagernet/sing/common/format"

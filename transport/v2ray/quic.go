@@ -4,9 +4,9 @@ import (
 	"context"
 	"os"
 
-	"github.com/inazumav/sing-box/adapter"
-	"github.com/inazumav/sing-box/common/tls"
-	"github.com/inazumav/sing-box/option"
+	"github.com/kumakuma10/sing-box/adapter"
+	"github.com/kumakuma10/sing-box/common/tls"
+	"github.com/kumakuma10/sing-box/option"
 	M "github.com/sagernet/sing/common/metadata"
 	N "github.com/sagernet/sing/common/network"
 )

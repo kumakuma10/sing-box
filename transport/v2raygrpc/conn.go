@@ -5,7 +5,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/inazumav/sing-box/common/baderror"
+	"github.com/kumakuma10/sing-box/common/baderror"
 	"github.com/sagernet/sing/common"
 	M "github.com/sagernet/sing/common/metadata"
 	"github.com/sagernet/sing/common/rw"

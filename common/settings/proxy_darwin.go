@@ -5,7 +5,7 @@ import (
 	"net/netip"
 	"strings"
 
-	"github.com/inazumav/sing-box/adapter"
+	"github.com/kumakuma10/sing-box/adapter"
 	"github.com/sagernet/sing-tun"
 	E "github.com/sagernet/sing/common/exceptions"
 	M "github.com/sagernet/sing/common/metadata"

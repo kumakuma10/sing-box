@@ -3,9 +3,9 @@ package experimental
 import (
 	"os"
 
-	"github.com/inazumav/sing-box/adapter"
-	"github.com/inazumav/sing-box/log"
-	"github.com/inazumav/sing-box/option"
+	"github.com/kumakuma10/sing-box/adapter"
+	"github.com/kumakuma10/sing-box/log"
+	"github.com/kumakuma10/sing-box/option"
 )
 
 type V2RayServerConstructor = func(logger log.Logger, options option.V2RayAPIOptions) (adapter.V2RayServer, error)

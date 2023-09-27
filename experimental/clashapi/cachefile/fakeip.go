@@ -5,7 +5,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/inazumav/sing-box/adapter"
+	"github.com/kumakuma10/sing-box/adapter"
 	"github.com/sagernet/sing/common/logger"
 	M "github.com/sagernet/sing/common/metadata"
 

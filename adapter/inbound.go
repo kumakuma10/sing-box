@@ -5,8 +5,8 @@ import (
 	"net"
 	"net/netip"
 
-	"github.com/inazumav/sing-box/common/process"
-	"github.com/inazumav/sing-box/option"
+	"github.com/kumakuma10/sing-box/common/process"
+	"github.com/kumakuma10/sing-box/option"
 	M "github.com/sagernet/sing/common/metadata"
 	N "github.com/sagernet/sing/common/network"
 )

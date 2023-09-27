@@ -5,8 +5,8 @@ import (
 	"encoding/binary"
 	"os"
 
-	"github.com/inazumav/sing-box/adapter"
-	C "github.com/inazumav/sing-box/constant"
+	"github.com/kumakuma10/sing-box/adapter"
+	C "github.com/kumakuma10/sing-box/constant"
 )
 
 func STUNMessage(ctx context.Context, packet []byte) (*adapter.InboundContext, error) {

@@ -2,4 +2,4 @@
 
 package include
 
-import _ "github.com/inazumav/sing-box/transport/dhcp"
+import _ "github.com/kumakuma10/sing-box/transport/dhcp"

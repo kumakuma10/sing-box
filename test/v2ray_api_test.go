@@ -5,9 +5,9 @@ import (
 	"net/netip"
 	"testing"
 
-	C "github.com/inazumav/sing-box/constant"
-	"github.com/inazumav/sing-box/experimental/v2rayapi"
-	"github.com/inazumav/sing-box/option"
+	C "github.com/kumakuma10/sing-box/constant"
+	"github.com/kumakuma10/sing-box/experimental/v2rayapi"
+	"github.com/kumakuma10/sing-box/option"
 
 	"github.com/stretchr/testify/require"
 )

@@ -3,8 +3,8 @@ package dialer
 import (
 	"time"
 
-	"github.com/inazumav/sing-box/adapter"
-	"github.com/inazumav/sing-box/option"
+	"github.com/kumakuma10/sing-box/adapter"
+	"github.com/kumakuma10/sing-box/option"
 	"github.com/sagernet/sing-dns"
 	"github.com/sagernet/sing/common"
 	N "github.com/sagernet/sing/common/network"

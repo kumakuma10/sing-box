@@ -4,8 +4,8 @@ import (
 	"net/netip"
 	"testing"
 
-	C "github.com/inazumav/sing-box/constant"
-	"github.com/inazumav/sing-box/option"
+	C "github.com/kumakuma10/sing-box/constant"
+	"github.com/kumakuma10/sing-box/option"
 )
 
 func TestShadowsocksR(t *testing.T) {

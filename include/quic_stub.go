@@ -5,11 +5,11 @@ package include
 import (
 	"context"
 
-	"github.com/inazumav/sing-box/adapter"
-	"github.com/inazumav/sing-box/common/tls"
-	C "github.com/inazumav/sing-box/constant"
-	"github.com/inazumav/sing-box/option"
-	"github.com/inazumav/sing-box/transport/v2ray"
+	"github.com/kumakuma10/sing-box/adapter"
+	"github.com/kumakuma10/sing-box/common/tls"
+	C "github.com/kumakuma10/sing-box/constant"
+	"github.com/kumakuma10/sing-box/option"
+	"github.com/kumakuma10/sing-box/transport/v2ray"
 	"github.com/sagernet/sing-dns"
 	"github.com/sagernet/sing/common/logger"
 	M "github.com/sagernet/sing/common/metadata"

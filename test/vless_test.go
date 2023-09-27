@@ -5,9 +5,9 @@ import (
 	"os"
 	"testing"
 
-	C "github.com/inazumav/sing-box/constant"
-	"github.com/inazumav/sing-box/option"
-	"github.com/inazumav/sing-box/transport/vless"
+	C "github.com/kumakuma10/sing-box/constant"
+	"github.com/kumakuma10/sing-box/option"
+	"github.com/kumakuma10/sing-box/transport/vless"
 
 	"github.com/gofrs/uuid/v5"
 	"github.com/spyzhov/ajson"

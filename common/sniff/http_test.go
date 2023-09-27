@@ -5,7 +5,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/inazumav/sing-box/common/sniff"
+	"github.com/kumakuma10/sing-box/common/sniff"
 
 	"github.com/stretchr/testify/require"
 )

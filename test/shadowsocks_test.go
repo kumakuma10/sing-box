@@ -6,8 +6,8 @@ import (
 	"net/netip"
 	"testing"
 
-	C "github.com/inazumav/sing-box/constant"
-	"github.com/inazumav/sing-box/option"
+	C "github.com/kumakuma10/sing-box/constant"
+	"github.com/kumakuma10/sing-box/option"
 	"github.com/sagernet/sing-shadowsocks/shadowaead_2022"
 	F "github.com/sagernet/sing/common/format"
 

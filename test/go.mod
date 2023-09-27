@@ -2,9 +2,9 @@ module test
 
 go 1.20
 
-require github.com/inazumav/sing-box v0.0.0
+require github.com/kumakuma10/sing-box v0.0.0
 
-replace github.com/inazumav/sing-box => ../
+replace github.com/kumakuma10/sing-box => ../
 
 require (
 	github.com/docker/docker v24.0.6+incompatible

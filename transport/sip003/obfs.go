@@ -2,10 +2,10 @@ package sip003
 
 import (
 	"context"
-	obfs "github.com/inazumav/sing-box/transport/simple-obfs"
+	obfs "github.com/kumakuma10/sing-box/transport/simple-obfs"
 	"net"
 
-	"github.com/inazumav/sing-box/adapter"
+	"github.com/kumakuma10/sing-box/adapter"
 	E "github.com/sagernet/sing/common/exceptions"
 	F "github.com/sagernet/sing/common/format"
 	M "github.com/sagernet/sing/common/metadata"

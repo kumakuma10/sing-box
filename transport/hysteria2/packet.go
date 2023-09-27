@@ -13,7 +13,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/inazumav/sing-box/transport/hysteria2/internal/protocol"
+	"github.com/kumakuma10/sing-box/transport/hysteria2/internal/protocol"
 	"github.com/sagernet/quic-go/quicvarint"
 	"github.com/sagernet/sing/common"
 	"github.com/sagernet/sing/common/atomic"

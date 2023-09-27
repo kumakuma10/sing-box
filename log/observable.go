@@ -6,7 +6,7 @@ import (
 	"os"
 	"time"
 
-	C "github.com/inazumav/sing-box/constant"
+	C "github.com/kumakuma10/sing-box/constant"
 	"github.com/sagernet/sing/common"
 	F "github.com/sagernet/sing/common/format"
 	"github.com/sagernet/sing/common/observable"

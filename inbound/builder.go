@@ -2,12 +2,12 @@ package inbound
 
 import (
 	"context"
-	"github.com/inazumav/sing-box/experimental/libbox/platform"
+	"github.com/kumakuma10/sing-box/experimental/libbox/platform"
 
-	"github.com/inazumav/sing-box/adapter"
-	C "github.com/inazumav/sing-box/constant"
-	"github.com/inazumav/sing-box/log"
-	"github.com/inazumav/sing-box/option"
+	"github.com/kumakuma10/sing-box/adapter"
+	C "github.com/kumakuma10/sing-box/constant"
+	"github.com/kumakuma10/sing-box/log"
+	"github.com/kumakuma10/sing-box/option"
 	E "github.com/sagernet/sing/common/exceptions"
 )
 

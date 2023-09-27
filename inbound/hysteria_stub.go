@@ -5,10 +5,10 @@ package inbound
 import (
 	"context"
 
-	"github.com/inazumav/sing-box/adapter"
-	C "github.com/inazumav/sing-box/constant"
-	"github.com/inazumav/sing-box/log"
-	"github.com/inazumav/sing-box/option"
+	"github.com/kumakuma10/sing-box/adapter"
+	C "github.com/kumakuma10/sing-box/constant"
+	"github.com/kumakuma10/sing-box/log"
+	"github.com/kumakuma10/sing-box/option"
 )
 
 func NewHysteria(ctx context.Context, router adapter.Router, logger log.ContextLogger, tag string, options option.HysteriaInboundOptions) (adapter.Inbound, error) {

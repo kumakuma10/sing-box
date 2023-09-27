@@ -5,8 +5,8 @@ import (
 	"context"
 	"io"
 
-	"github.com/inazumav/sing-box/adapter"
-	C "github.com/inazumav/sing-box/constant"
+	"github.com/kumakuma10/sing-box/adapter"
+	C "github.com/kumakuma10/sing-box/constant"
 	M "github.com/sagernet/sing/common/metadata"
 	"github.com/sagernet/sing/protocol/http"
 )

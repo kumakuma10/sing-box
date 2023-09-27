@@ -6,8 +6,8 @@ import (
 	"runtime"
 	"time"
 
-	"github.com/inazumav/sing-box/common/dialer/conntrack"
-	"github.com/inazumav/sing-box/experimental/clashapi"
+	"github.com/kumakuma10/sing-box/common/dialer/conntrack"
+	"github.com/kumakuma10/sing-box/experimental/clashapi"
 	E "github.com/sagernet/sing/common/exceptions"
 )
 

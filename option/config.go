@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"strings"
 
-	"github.com/inazumav/sing-box/common/json"
+	"github.com/kumakuma10/sing-box/common/json"
 	E "github.com/sagernet/sing/common/exceptions"
 )
 

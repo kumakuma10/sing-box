@@ -1,8 +1,8 @@
 package option
 
 import (
-	"github.com/inazumav/sing-box/common/json"
-	C "github.com/inazumav/sing-box/constant"
+	"github.com/kumakuma10/sing-box/common/json"
+	C "github.com/kumakuma10/sing-box/constant"
 	E "github.com/sagernet/sing/common/exceptions"
 	M "github.com/sagernet/sing/common/metadata"
 )

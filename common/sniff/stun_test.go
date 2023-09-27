@@ -5,8 +5,8 @@ import (
 	"encoding/hex"
 	"testing"
 
-	"github.com/inazumav/sing-box/common/sniff"
-	C "github.com/inazumav/sing-box/constant"
+	"github.com/kumakuma10/sing-box/common/sniff"
+	C "github.com/kumakuma10/sing-box/constant"
 
 	"github.com/stretchr/testify/require"
 )

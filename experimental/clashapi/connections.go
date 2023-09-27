@@ -6,9 +6,9 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/inazumav/sing-box/adapter"
-	"github.com/inazumav/sing-box/common/json"
-	"github.com/inazumav/sing-box/experimental/clashapi/trafficontrol"
+	"github.com/kumakuma10/sing-box/adapter"
+	"github.com/kumakuma10/sing-box/common/json"
+	"github.com/kumakuma10/sing-box/experimental/clashapi/trafficontrol"
 	"github.com/sagernet/websocket"
 
 	"github.com/go-chi/chi/v5"

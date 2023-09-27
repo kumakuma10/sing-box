@@ -5,11 +5,11 @@ package v2ray
 import (
 	"context"
 
-	"github.com/inazumav/sing-box/adapter"
-	"github.com/inazumav/sing-box/common/tls"
-	"github.com/inazumav/sing-box/option"
-	"github.com/inazumav/sing-box/transport/v2raygrpc"
-	"github.com/inazumav/sing-box/transport/v2raygrpclite"
+	"github.com/kumakuma10/sing-box/adapter"
+	"github.com/kumakuma10/sing-box/common/tls"
+	"github.com/kumakuma10/sing-box/option"
+	"github.com/kumakuma10/sing-box/transport/v2raygrpc"
+	"github.com/kumakuma10/sing-box/transport/v2raygrpclite"
 	M "github.com/sagernet/sing/common/metadata"
 	N "github.com/sagernet/sing/common/network"
 )

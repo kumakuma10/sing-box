@@ -6,7 +6,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/inazumav/sing-box/option"
+	"github.com/kumakuma10/sing-box/option"
 	"github.com/sagernet/sing/common"
 	E "github.com/sagernet/sing/common/exceptions"
 	"github.com/sagernet/sing/service/filemanager"

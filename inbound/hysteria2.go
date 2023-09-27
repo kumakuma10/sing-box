@@ -9,12 +9,12 @@ import (
 	"net/http/httputil"
 	"net/url"
 
-	"github.com/inazumav/sing-box/adapter"
-	"github.com/inazumav/sing-box/common/tls"
-	C "github.com/inazumav/sing-box/constant"
-	"github.com/inazumav/sing-box/log"
-	"github.com/inazumav/sing-box/option"
-	"github.com/inazumav/sing-box/transport/hysteria2"
+	"github.com/kumakuma10/sing-box/adapter"
+	"github.com/kumakuma10/sing-box/common/tls"
+	C "github.com/kumakuma10/sing-box/constant"
+	"github.com/kumakuma10/sing-box/log"
+	"github.com/kumakuma10/sing-box/option"
+	"github.com/kumakuma10/sing-box/transport/hysteria2"
 	"github.com/sagernet/sing/common"
 	"github.com/sagernet/sing/common/auth"
 	E "github.com/sagernet/sing/common/exceptions"
@@ -141,4 +141,12 @@ func (h *Hysteria2) Close() error {
 		h.tlsConfig,
 		common.PtrOrNil(h.server),
 	)
+}
+
+func (h *Hysteria2) AddUsers(users []option.Hysteria2User) error {
+	return h.server.AddUsers(users)
+}
+
+func (h *Hysteria2) DelUsers(passwords []string) error {
+	return h.server.DelUsers(passwords)
 }

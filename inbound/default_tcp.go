@@ -4,9 +4,9 @@ import (
 	"context"
 	"net"
 
-	"github.com/inazumav/sing-box/adapter"
-	"github.com/inazumav/sing-box/common/proxyproto"
-	"github.com/inazumav/sing-box/log"
+	"github.com/kumakuma10/sing-box/adapter"
+	"github.com/kumakuma10/sing-box/common/proxyproto"
+	"github.com/kumakuma10/sing-box/log"
 	E "github.com/sagernet/sing/common/exceptions"
 	M "github.com/sagernet/sing/common/metadata"
 	N "github.com/sagernet/sing/common/network"

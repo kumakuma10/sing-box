@@ -14,7 +14,7 @@ import (
 	"sync/atomic"
 	"unsafe"
 
-	"github.com/inazumav/sing-box/log"
+	"github.com/kumakuma10/sing-box/log"
 	"github.com/sagernet/sing/common"
 	"github.com/sagernet/sing/common/buf"
 	"github.com/sagernet/sing/common/bufio"

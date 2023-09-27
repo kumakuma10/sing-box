@@ -5,7 +5,7 @@ import (
 	"os"
 	"syscall"
 
-	"github.com/inazumav/sing-box/common/baderror"
+	"github.com/kumakuma10/sing-box/common/baderror"
 	"github.com/sagernet/quic-go"
 	"github.com/sagernet/sing/common"
 )

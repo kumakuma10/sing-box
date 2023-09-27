@@ -4,7 +4,7 @@ import (
 	"runtime"
 	"time"
 
-	"github.com/inazumav/sing-box/experimental/clashapi/compatible"
+	"github.com/kumakuma10/sing-box/experimental/clashapi/compatible"
 	"github.com/sagernet/sing/common/atomic"
 )
 

@@ -7,7 +7,7 @@ import (
 	"net"
 	"net/http"
 
-	"github.com/inazumav/sing-box/common/qtls"
+	"github.com/kumakuma10/sing-box/common/qtls"
 	M "github.com/sagernet/sing/common/metadata"
 )
 

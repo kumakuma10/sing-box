@@ -6,7 +6,7 @@ import (
 	"net/netip"
 	"time"
 
-	"github.com/inazumav/sing-box/adapter"
+	"github.com/kumakuma10/sing-box/adapter"
 	"github.com/sagernet/sing/common"
 	"github.com/sagernet/sing/common/atomic"
 	"github.com/sagernet/sing/common/bufio"

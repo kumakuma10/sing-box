@@ -2,7 +2,6 @@ package hysteria2
 
 import (
 	"context"
-	"github.com/sagernet/quic-go"
 	"io"
 	"net"
 	"net/http"
@@ -11,12 +10,15 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/inazumav/sing-box/common/baderror"
-	"github.com/inazumav/sing-box/common/qtls"
-	"github.com/inazumav/sing-box/common/tls"
-	"github.com/inazumav/sing-box/transport/hysteria2/congestion"
-	"github.com/inazumav/sing-box/transport/hysteria2/internal/protocol"
-	tuicCongestion "github.com/inazumav/sing-box/transport/tuic/congestion"
+	"github.com/sagernet/quic-go"
+
+	"github.com/kumakuma10/sing-box/common/baderror"
+	"github.com/kumakuma10/sing-box/common/qtls"
+	"github.com/kumakuma10/sing-box/common/tls"
+	"github.com/kumakuma10/sing-box/option"
+	"github.com/kumakuma10/sing-box/transport/hysteria2/congestion"
+	"github.com/kumakuma10/sing-box/transport/hysteria2/internal/protocol"
+	tuicCongestion "github.com/kumakuma10/sing-box/transport/tuic/congestion"
 	"github.com/sagernet/quic-go/http3"
 	"github.com/sagernet/sing/common"
 	"github.com/sagernet/sing/common/auth"
@@ -126,6 +128,22 @@ func (s *Server) Close() error {
 	return common.Close(
 		s.quicListener,
 	)
+}
+func (s *Server) AddUsers(users []option.Hysteria2User) error {
+	for _, u := range users {
+		s.userMap[u.Password] = User{
+			Name:     u.Name,
+			Password: u.Password,
+		}
+	}
+	return nil
+}
+
+func (s *Server) DelUsers(passwords []string) error {
+	for _, p := range passwords {
+		delete(s.userMap, p)
+	}
+	return nil
 }
 
 func (s *Server) loopConnections(listener qtls.QUICListener) {

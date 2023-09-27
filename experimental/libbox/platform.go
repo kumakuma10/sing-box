@@ -1,7 +1,7 @@
 package libbox
 
 import (
-	"github.com/inazumav/sing-box/option"
+	"github.com/kumakuma10/sing-box/option"
 )
 
 type PlatformInterface interface {

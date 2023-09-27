@@ -5,7 +5,7 @@ package tls
 import (
 	"context"
 
-	"github.com/inazumav/sing-box/option"
+	"github.com/kumakuma10/sing-box/option"
 	E "github.com/sagernet/sing/common/exceptions"
 )
 

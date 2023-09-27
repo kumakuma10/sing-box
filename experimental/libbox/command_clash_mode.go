@@ -6,8 +6,8 @@ import (
 	"net"
 	"time"
 
-	"github.com/inazumav/sing-box/adapter"
-	"github.com/inazumav/sing-box/experimental/clashapi"
+	"github.com/kumakuma10/sing-box/adapter"
+	"github.com/kumakuma10/sing-box/experimental/clashapi"
 	E "github.com/sagernet/sing/common/exceptions"
 	"github.com/sagernet/sing/common/rw"
 )

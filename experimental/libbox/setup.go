@@ -5,7 +5,7 @@ import (
 	"os/user"
 	"strconv"
 
-	C "github.com/inazumav/sing-box/constant"
+	C "github.com/kumakuma10/sing-box/constant"
 
 	"github.com/dustin/go-humanize"
 )

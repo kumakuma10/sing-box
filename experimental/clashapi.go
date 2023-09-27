@@ -2,11 +2,11 @@ package experimental
 
 import (
 	"context"
-	"os"
+	"github.com/kumakuma10/sing-box/adapter"
+	"github.com/kumakuma10/sing-box/log"
+	"github.com/kumakuma10/sing-box/option"
 	"github.com/sagernet/sing/common"
-	"github.com/inazumav/sing-box/adapter"
-	"github.com/inazumav/sing-box/log"
-	"github.com/inazumav/sing-box/option"
+	"os"
 )
 
 type ClashServerConstructor = func(ctx context.Context, router adapter.Router, logFactory log.ObservableFactory, options option.ClashAPIOptions) (adapter.ClashServer, error)

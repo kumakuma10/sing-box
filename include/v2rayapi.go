@@ -2,4 +2,4 @@
 
 package include
 
-import _ "github.com/inazumav/sing-box/experimental/v2rayapi"
+import _ "github.com/kumakuma10/sing-box/experimental/v2rayapi"

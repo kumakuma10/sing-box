@@ -3,10 +3,10 @@
 package include
 
 import (
-	"github.com/inazumav/sing-box/adapter"
-	"github.com/inazumav/sing-box/experimental"
-	"github.com/inazumav/sing-box/log"
-	"github.com/inazumav/sing-box/option"
+	"github.com/kumakuma10/sing-box/adapter"
+	"github.com/kumakuma10/sing-box/experimental"
+	"github.com/kumakuma10/sing-box/log"
+	"github.com/kumakuma10/sing-box/option"
 	E "github.com/sagernet/sing/common/exceptions"
 )
 

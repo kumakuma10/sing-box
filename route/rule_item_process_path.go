@@ -3,7 +3,7 @@ package route
 import (
 	"strings"
 
-	"github.com/inazumav/sing-box/adapter"
+	"github.com/kumakuma10/sing-box/adapter"
 )
 
 var _ RuleItem = (*ProcessPathItem)(nil)

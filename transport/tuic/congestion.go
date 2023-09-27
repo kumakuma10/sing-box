@@ -5,7 +5,7 @@ import (
 	"github.com/sagernet/quic-go"
 	"time"
 
-	"github.com/inazumav/sing-box/transport/tuic/congestion"
+	"github.com/kumakuma10/sing-box/transport/tuic/congestion"
 	"github.com/sagernet/sing/common/ntp"
 )
 

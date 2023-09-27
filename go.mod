@@ -1,4 +1,4 @@
-module github.com/inazumav/sing-box
+module github.com/kumakuma10/sing-box
 
 go 1.20
 

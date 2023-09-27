@@ -1,7 +1,7 @@
 package route
 
 import (
-	"github.com/inazumav/sing-box/adapter"
+	"github.com/kumakuma10/sing-box/adapter"
 )
 
 var _ RuleItem = (*IPVersionItem)(nil)

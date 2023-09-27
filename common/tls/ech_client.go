@@ -13,8 +13,8 @@ import (
 	"os"
 	"strings"
 
-	"github.com/inazumav/sing-box/adapter"
-	"github.com/inazumav/sing-box/option"
+	"github.com/kumakuma10/sing-box/adapter"
+	"github.com/kumakuma10/sing-box/option"
 	cftls "github.com/sagernet/cloudflare-tls"
 	"github.com/sagernet/sing-dns"
 	E "github.com/sagernet/sing/common/exceptions"

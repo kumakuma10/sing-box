@@ -9,6 +9,6 @@ brew install sing-box
 ## Homebrew (Tap)
 
 ```shell
-brew tap inazumav/sing-box
-brew install inazumav/sing-box/sing-box
+brew tap kumakuma10/sing-box
+brew install kumakuma10/sing-box/sing-box
 ```

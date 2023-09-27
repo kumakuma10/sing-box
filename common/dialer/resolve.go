@@ -6,8 +6,8 @@ import (
 	"net/netip"
 	"time"
 
-	"github.com/inazumav/sing-box/adapter"
-	"github.com/inazumav/sing-box/log"
+	"github.com/kumakuma10/sing-box/adapter"
+	"github.com/kumakuma10/sing-box/log"
 	"github.com/sagernet/sing-dns"
 	"github.com/sagernet/sing/common/bufio"
 	M "github.com/sagernet/sing/common/metadata"

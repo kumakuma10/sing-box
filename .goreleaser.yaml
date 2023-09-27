@@ -10,7 +10,7 @@ builds:
     gcflags:
       - all=-trimpath={{.Env.GOPATH}}
     ldflags:
-      - -X github.com/inazumav/sing-box/constant.Version={{ .Version }} -s -w -buildid=
+      - -X github.com/kumakuma10/sing-box/constant.Version={{ .Version }} -s -w -buildid=
     tags:
       - with_gvisor
       - with_quic
@@ -46,7 +46,7 @@ builds:
     gcflags:
       - all=-trimpath={{.Env.GOPATH}}
     ldflags:
-      - -X github.com/inazumav/sing-box/constant.Version={{ .Version }} -s -w -buildid=
+      - -X github.com/kumakuma10/sing-box/constant.Version={{ .Version }} -s -w -buildid=
     tags:
       - with_gvisor
       - with_quic
@@ -87,7 +87,7 @@ builds:
       - android_amd64
     mod_timestamp: '{{ .CommitTimestamp }}'
 snapshot:
-  name_template: "{{ .Version }}.{{ .ShortCommit }}"
+  name_template: '{{ .Version }}.{{ .ShortCommit }}'
 archives:
   - id: archive
     format: tar.gz

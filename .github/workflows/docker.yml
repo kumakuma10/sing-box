@@ -3,7 +3,7 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: "The tag version you want to build"
+        description: 'The tag version you want to build'
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -24,15 +24,15 @@ jobs:
         id: metadata
         uses: docker/metadata-action@v4
         with:
-          images: ghcr.io/inazumav/sing-box
+          images: ghcr.io/kumakuma10/sing-box
       - name: Get tag to build
         id: tag
         run: |
-          echo "latest=ghcr.io/inazumav/sing-box:latest" >> $GITHUB_OUTPUT
+          echo "latest=ghcr.io/kumakuma10/sing-box:latest" >> $GITHUB_OUTPUT
           if [[ -z "${{ github.event.inputs.tag }}" ]]; then
-            echo "versioned=ghcr.io/inazumav/sing-box:${{ github.ref_name }}" >> $GITHUB_OUTPUT
+            echo "versioned=ghcr.io/kumakuma10/sing-box:${{ github.ref_name }}" >> $GITHUB_OUTPUT
           else
-            echo "versioned=ghcr.io/inazumav/sing-box:${{ github.event.inputs.tag }}" >> $GITHUB_OUTPUT
+            echo "versioned=ghcr.io/kumakuma10/sing-box:${{ github.event.inputs.tag }}" >> $GITHUB_OUTPUT
           fi
       - name: Build and release Docker images
         uses: docker/build-push-action@v4

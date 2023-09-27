@@ -18,7 +18,7 @@ import (
 	"strconv"
 	"sync"
 
-	C "github.com/inazumav/sing-box/constant"
+	C "github.com/kumakuma10/sing-box/constant"
 	"github.com/sagernet/sing/common"
 	"github.com/sagernet/sing/common/bufio"
 	E "github.com/sagernet/sing/common/exceptions"

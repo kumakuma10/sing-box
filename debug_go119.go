@@ -5,8 +5,8 @@ package box
 import (
 	"runtime/debug"
 
-	"github.com/inazumav/sing-box/common/dialer/conntrack"
-	"github.com/inazumav/sing-box/option"
+	"github.com/kumakuma10/sing-box/common/dialer/conntrack"
+	"github.com/kumakuma10/sing-box/option"
 )
 
 func applyDebugOptions(options option.DebugOptions) {

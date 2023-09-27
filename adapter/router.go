@@ -2,11 +2,11 @@ package adapter
 
 import (
 	"context"
-	"github.com/inazumav/sing-box/option"
+	"github.com/kumakuma10/sing-box/option"
 	"net"
 	"net/netip"
 
-	"github.com/inazumav/sing-box/common/geoip"
+	"github.com/kumakuma10/sing-box/common/geoip"
 	"github.com/sagernet/sing-dns"
 	"github.com/sagernet/sing-tun"
 	"github.com/sagernet/sing/common/control"

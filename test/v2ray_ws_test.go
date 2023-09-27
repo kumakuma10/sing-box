@@ -5,8 +5,8 @@ import (
 	"os"
 	"testing"
 
-	C "github.com/inazumav/sing-box/constant"
-	"github.com/inazumav/sing-box/option"
+	C "github.com/kumakuma10/sing-box/constant"
+	"github.com/kumakuma10/sing-box/option"
 
 	"github.com/gofrs/uuid/v5"
 	"github.com/spyzhov/ajson"

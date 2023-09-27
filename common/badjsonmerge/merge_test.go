@@ -3,8 +3,8 @@ package badjsonmerge
 import (
 	"testing"
 
-	C "github.com/inazumav/sing-box/constant"
-	"github.com/inazumav/sing-box/option"
+	C "github.com/kumakuma10/sing-box/constant"
+	"github.com/kumakuma10/sing-box/option"
 	N "github.com/sagernet/sing/common/network"
 
 	"github.com/stretchr/testify/require"
