@@ -81,13 +81,6 @@ func NewServer(options ServerOptions) (*Server, error) {
 		MaxIdleTimeout:                 defaultMaxIdleTimeout,
 		KeepAlivePeriod:                defaultKeepAlivePeriod,
 	}
-	if len(options.Users) == 0 {
-		return nil, E.New("missing users")
-	}
-	userMap := make(map[string]User)
-	for _, user := range options.Users {
-		userMap[user.Password] = user
-	}
 	if options.MasqueradeHandler == nil {
 		options.MasqueradeHandler = http.NotFoundHandler()
 	}
@@ -100,7 +93,7 @@ func NewServer(options ServerOptions) (*Server, error) {
 		salamanderPassword:    options.SalamanderPassword,
 		tlsConfig:             options.TLSConfig,
 		quicConfig:            quicConfig,
-		userMap:               userMap,
+		userMap:               make(map[string]User),
 		udpDisabled:           options.UDPDisabled,
 		handler:               options.Handler,
 		masqueradeHandler:     options.MasqueradeHandler,
