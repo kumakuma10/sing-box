@@ -6,7 +6,7 @@ import (
 	runtimeDebug "runtime/debug"
 	"time"
 
-	"github.com/kumakuma10/sing-box/common/dialer/conntrack"
+	"github.com/kumakuma10/sing-box/common/conntrack"
 )
 
 func (c *CommandClient) CloseConnections() error {

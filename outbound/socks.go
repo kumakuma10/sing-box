@@ -9,6 +9,7 @@ import (
 	C "github.com/kumakuma10/sing-box/constant"
 	"github.com/kumakuma10/sing-box/log"
 	"github.com/kumakuma10/sing-box/option"
+	dns "github.com/sagernet/sing-dns"
 	"github.com/sagernet/sing/common"
 	E "github.com/sagernet/sing/common/exceptions"
 	M "github.com/sagernet/sing/common/metadata"
@@ -113,9 +114,17 @@ func (h *Socks) ListenPacket(ctx context.Context, destination M.Socksaddr) (net.
 }
 
 func (h *Socks) NewConnection(ctx context.Context, conn net.Conn, metadata adapter.InboundContext) error {
-	return NewDirectConnection(ctx, h.router, h, conn, metadata)
+	if h.resolve {
+		return NewDirectConnection(ctx, h.router, h, conn, metadata, dns.DomainStrategyUseIPv4)
+	} else {
+		return NewConnection(ctx, h, conn, metadata)
+	}
 }
 
 func (h *Socks) NewPacketConnection(ctx context.Context, conn N.PacketConn, metadata adapter.InboundContext) error {
-	return NewDirectPacketConnection(ctx, h.router, h, conn, metadata)
+	if h.resolve {
+		return NewDirectPacketConnection(ctx, h.router, h, conn, metadata, dns.DomainStrategyUseIPv4)
+	} else {
+		return NewPacketConnection(ctx, h, conn, metadata)
+	}
 }

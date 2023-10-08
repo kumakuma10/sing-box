@@ -4,7 +4,7 @@
 {
   "type": "hysteria2",
   "tag": "hy2-in",
-  
+
   ... // Listen Fields
 
   "up_mbps": 100,
@@ -20,14 +20,11 @@
     }
   ],
   "ignore_client_bandwidth": false,
+  "tls": {},
   "masquerade": "",
-  "tls": {}
+  "brutal_debug": false
 }
 ```
-
-!!! warning "Compatibility issues with the official client"
-
-    The use case of `fastOpen=false` or UDP MTU >= 1200 is not supported when using the official client.
 
 !!! warning ""
 
@@ -71,19 +68,23 @@ Commands the client to use the BBR flow control algorithm instead of Hysteria CC
 
 Conflict with `up_mbps` and `down_mbps`.
 
-#### masquerade
-
-HTTP3 server behavior when authentication fails.
-
-| Scheme       | Example                 | Description        |
-|--------------|-------------------------|--------------------|
-| `file`       | `file:///var/www`       | As a file server   |
-| `http/https` | `http://127.0.0.1:8080` | As a reverse proxy |
-
-A 404 page will be returned if empty.
-
 #### tls
 
 ==Required==
 
 TLS configuration, see [TLS](/configuration/shared/tls/#inbound).
+
+#### masquerade
+
+HTTP3 server behavior when authentication fails.
+
+| Scheme       | Example                 | Description        |
+| ------------ | ----------------------- | ------------------ |
+| `file`       | `file:///var/www`       | As a file server   |
+| `http/https` | `http://127.0.0.1:8080` | As a reverse proxy |
+
+A 404 page will be returned if empty.
+
+#### brutal_debug
+
+Enable debug information logging for Hysteria Brutal CC.

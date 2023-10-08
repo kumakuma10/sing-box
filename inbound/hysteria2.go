@@ -14,7 +14,8 @@ import (
 	C "github.com/kumakuma10/sing-box/constant"
 	"github.com/kumakuma10/sing-box/log"
 	"github.com/kumakuma10/sing-box/option"
-	"github.com/kumakuma10/sing-box/transport/hysteria2"
+	"github.com/kumakuma10/sing-box/transport/hysteria"
+	"github.com/sagernet/sing-quic/hysteria2"
 	"github.com/sagernet/sing/common"
 	"github.com/sagernet/sing/common/auth"
 	E "github.com/sagernet/sing/common/exceptions"
@@ -26,7 +27,8 @@ var _ adapter.Inbound = (*Hysteria2)(nil)
 type Hysteria2 struct {
 	myInboundAdapter
 	tlsConfig tls.ServerConfig
-	server    *hysteria2.Server
+	service   *hysteria2.Service[int]
+	users     []option.Hysteria2User
 }
 
 func NewHysteria2(ctx context.Context, router adapter.Router, logger log.ContextLogger, tag string, options option.Hysteria2InboundOptions) (*Hysteria2, error) {
@@ -82,18 +84,17 @@ func NewHysteria2(ctx context.Context, router adapter.Router, logger log.Context
 			tag:           tag,
 			listenOptions: options.ListenOptions,
 		},
+		users:     options.Users,
 		tlsConfig: tlsConfig,
 	}
-	server, err := hysteria2.NewServer(hysteria2.ServerOptions{
-		Context:            ctx,
-		Logger:             logger,
-		SendBPS:            uint64(options.UpMbps * 1024 * 1024),
-		ReceiveBPS:         uint64(options.DownMbps * 1024 * 1024),
-		SalamanderPassword: salamanderPassword,
-		TLSConfig:          tlsConfig,
-		Users: common.Map(options.Users, func(it option.Hysteria2User) hysteria2.User {
-			return hysteria2.User(it)
-		}),
+	service, err := hysteria2.NewService[int](hysteria2.ServiceOptions{
+		Context:               ctx,
+		Logger:                logger,
+		BrutalDebug:           options.BrutalDebug,
+		SendBPS:               uint64(options.UpMbps * hysteria.MbpsToBps),
+		ReceiveBPS:            uint64(options.DownMbps * hysteria.MbpsToBps),
+		SalamanderPassword:    salamanderPassword,
+		TLSConfig:             tlsConfig,
 		IgnoreClientBandwidth: options.IgnoreClientBandwidth,
 		Handler:               adapter.NewUpstreamHandler(adapter.InboundContext{}, inbound.newConnection, inbound.newPacketConnection, nil),
 		MasqueradeHandler:     masqueradeHandler,
@@ -101,24 +102,90 @@ func NewHysteria2(ctx context.Context, router adapter.Router, logger log.Context
 	if err != nil {
 		return nil, err
 	}
-	inbound.server = server
+	userList := make([]int, 0, len(options.Users))
+	userNameList := make([]string, 0, len(options.Users))
+	userPasswordList := make([]string, 0, len(options.Users))
+	for index, user := range options.Users {
+		userList = append(userList, index)
+		userNameList = append(userNameList, user.Name)
+		userPasswordList = append(userPasswordList, user.Password)
+	}
+	service.UpdateUsers(userList, userPasswordList)
+	inbound.service = service
 	return inbound, nil
 }
 
 func (h *Hysteria2) newConnection(ctx context.Context, conn net.Conn, metadata adapter.InboundContext) error {
 	ctx = log.ContextWithNewID(ctx)
-	h.logger.InfoContext(ctx, "inbound connection to ", metadata.Destination)
 	metadata = h.createMetadata(conn, metadata)
-	metadata.User, _ = auth.UserFromContext[string](ctx)
+	userID, _ := auth.UserFromContext[int](ctx)
+	if userName := h.users[userID].Name; userName != "" {
+		metadata.User = userName
+		h.logger.InfoContext(ctx, "[", userName, "] inbound connection to ", metadata.Destination)
+	} else {
+		h.logger.InfoContext(ctx, "inbound connection to ", metadata.Destination)
+	}
 	return h.router.RouteConnection(ctx, conn, metadata)
 }
 
 func (h *Hysteria2) newPacketConnection(ctx context.Context, conn N.PacketConn, metadata adapter.InboundContext) error {
 	ctx = log.ContextWithNewID(ctx)
 	metadata = h.createPacketMetadata(conn, metadata)
-	metadata.User, _ = auth.UserFromContext[string](ctx)
-	h.logger.InfoContext(ctx, "inbound packet connection to ", metadata.Destination)
+	userID, _ := auth.UserFromContext[int](ctx)
+	if userName := h.users[userID].Name; userName != "" {
+		metadata.User = userName
+		h.logger.InfoContext(ctx, "[", userName, "] inbound packet connection to ", metadata.Destination)
+	} else {
+		h.logger.InfoContext(ctx, "inbound packet connection to ", metadata.Destination)
+	}
 	return h.router.RoutePacketConnection(ctx, conn, metadata)
+}
+
+// v2bx
+
+func (h *Hysteria2) updateUsers() {
+	h.service.UpdateUsers(common.MapIndexed[option.Hysteria2User, int](h.users, func(index int, it option.Hysteria2User) int {
+		return index
+	}), common.Map[option.Hysteria2User, string](h.users, func(it option.Hysteria2User) string {
+		return it.Password
+	}))
+}
+
+func (h *Hysteria2) AddUsers(users []option.Hysteria2User) error {
+	if cap(h.users)-len(h.users) >= len(users) {
+		h.users = append(h.users, users...)
+	} else {
+		tmp := make([]option.Hysteria2User, 0, len(h.users)+len(users)+10)
+		tmp = append(tmp, h.users...)
+		tmp = append(tmp, users...)
+		h.users = tmp
+	}
+	h.updateUsers()
+	return nil
+}
+func (h *Hysteria2) DelUsers(name []string) error {
+	is := make([]int, 0, len(name))
+	ulen := len(name)
+	for i := range h.users {
+		for _, u := range name {
+			if h.users[i].Name == u {
+				is = append(is, i)
+				ulen--
+			}
+			if ulen == 0 {
+				break
+			}
+		}
+	}
+	ulen = len(h.users)
+	for _, i := range is {
+		h.users[i] = h.users[ulen-1]
+		h.users[ulen-1] = option.Hysteria2User{}
+		h.users = h.users[:ulen-1]
+		ulen--
+	}
+	h.updateUsers()
+	return nil
 }
 
 func (h *Hysteria2) Start() error {
@@ -132,21 +199,13 @@ func (h *Hysteria2) Start() error {
 	if err != nil {
 		return err
 	}
-	return h.server.Start(packetConn)
+	return h.service.Start(packetConn)
 }
 
 func (h *Hysteria2) Close() error {
 	return common.Close(
 		&h.myInboundAdapter,
 		h.tlsConfig,
-		common.PtrOrNil(h.server),
+		common.PtrOrNil(h.service),
 	)
-}
-
-func (h *Hysteria2) AddUsers(users []option.Hysteria2User) error {
-	return h.server.AddUsers(users)
-}
-
-func (h *Hysteria2) DelUsers(passwords []string) error {
-	return h.server.DelUsers(passwords)
 }

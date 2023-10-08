@@ -5,9 +5,9 @@ import (
 	"os"
 	"syscall"
 
-	"github.com/kumakuma10/sing-box/common/baderror"
 	"github.com/sagernet/quic-go"
 	"github.com/sagernet/sing/common"
+	"github.com/sagernet/sing/common/baderror"
 )
 
 type PacketConnWrapper struct {

@@ -14,14 +14,14 @@
 
 #### 下载 (独立版本)
 
-- [GitHub Release](https://github.com/SagerNet/sing-box/releases/latest)
+- [GitHub Release](https://github.com/kumakuma10/sing-box/releases/latest)
 - Homebrew (Cask): `brew install sfm`
 - Homebrew (Tap): `brew tap kumakuma10/sing-box && brew install kumakuma10/sing-box/sfm`
 
 #### 注意事项
 
 - 远程配置文件请求中的 User Agent 为 `SFM/$version ($version_code; sing-box $sing_box_version)`
-- 崩溃日志位于 `设置` -> `查看服务日志`
+- 崩溃日志位于 `Settings` -> `View Service Log`
 
 #### 隐私政策
 

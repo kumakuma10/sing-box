@@ -5,9 +5,8 @@ import (
 	"os/user"
 	"strconv"
 
+	"github.com/kumakuma10/sing-box/common/humanize"
 	C "github.com/kumakuma10/sing-box/constant"
-
-	"github.com/dustin/go-humanize"
 )
 
 var (
@@ -46,7 +45,11 @@ func Version() string {
 }
 
 func FormatBytes(length int64) string {
-	return humanize.IBytes(uint64(length))
+	return humanize.Bytes(uint64(length))
+}
+
+func FormatMemoryBytes(length int64) string {
+	return humanize.MemoryBytes(uint64(length))
 }
 
 func ProxyDisplayType(proxyType string) string {

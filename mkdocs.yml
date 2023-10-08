@@ -1,11 +1,11 @@
 site_name: sing-box
 site_author: nekohasekai
-repo_url: https://github.com/SagerNet/sing-box
-repo_name: SagerNet/sing-box
+repo_url: https://github.com/kumakuma10/sing-box
+repo_name: kumakuma10/sing-box
 copyright: Copyright &copy; 2022 nekohasekai
 site_description: The universal proxy platform.
 remote_branch: docs
-edit_uri: ""
+edit_uri: ''
 theme:
   name: material
   logo: assets/icon.svg
@@ -30,9 +30,10 @@ theme:
     - navigation.sections
     - header.autohide
 nav:
-  - Getting Started:
+  - Home:
       - index.md
       - Features: features.md
+      - Deprecated: deprecated.md
       - Support: support.md
       - Change Log: changelog.md
   - Installation:
@@ -70,6 +71,7 @@ nav:
           - Listen Fields: configuration/shared/listen.md
           - Dial Fields: configuration/shared/dial.md
           - TLS: configuration/shared/tls.md
+          - DNS01 Challenge Fields: configuration/shared/dns01_challenge.md
           - Multiplex: configuration/shared/multiplex.md
           - V2Ray Transport: configuration/shared/v2ray-transport.md
           - UDP over TCP: configuration/shared/udp-over-tcp.md
@@ -154,7 +156,7 @@ markdown_extensions:
 extra:
   social:
     - icon: fontawesome/brands/github
-      link: https://github.com/SagerNet/sing-box
+      link: https://github.com/kumakuma10/sing-box
   generator: false
 plugins:
   - search
@@ -192,6 +194,7 @@ plugins:
           Shared: 通用
           Listen Fields: 监听字段
           Dial Fields: 拨号字段
+          DNS01 Challenge Fields: DNS01 验证字段
           Multiplex: 多路复用
           V2Ray Transport: V2Ray 传输层
 

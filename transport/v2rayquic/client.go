@@ -4,16 +4,18 @@ package v2rayquic
 
 import (
 	"context"
-	"github.com/sagernet/quic-go"
 	"net"
 	"sync"
 
+	"github.com/sagernet/quic-go"
+
 	"github.com/kumakuma10/sing-box/adapter"
-	"github.com/kumakuma10/sing-box/common/qtls"
 	"github.com/kumakuma10/sing-box/common/tls"
 	C "github.com/kumakuma10/sing-box/constant"
 	"github.com/kumakuma10/sing-box/option"
 	"github.com/kumakuma10/sing-box/transport/hysteria"
+	"github.com/sagernet/quic-go"
+	qtls "github.com/sagernet/sing-quic"
 	"github.com/sagernet/sing/common"
 	"github.com/sagernet/sing/common/bufio"
 	M "github.com/sagernet/sing/common/metadata"

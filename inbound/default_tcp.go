@@ -5,7 +5,6 @@ import (
 	"net"
 
 	"github.com/kumakuma10/sing-box/adapter"
-	"github.com/kumakuma10/sing-box/common/proxyproto"
 	"github.com/kumakuma10/sing-box/log"
 	E "github.com/sagernet/sing/common/exceptions"
 	M "github.com/sagernet/sing/common/metadata"
@@ -34,9 +33,8 @@ func (a *myInboundAdapter) ListenTCP() (net.Listener, error) {
 	if err == nil {
 		a.logger.Info("tcp server started at ", tcpListener.Addr())
 	}
-	if a.listenOptions.ProxyProtocol {
-		a.logger.Debug("proxy protocol enabled")
-		tcpListener = &proxyproto.Listener{Listener: tcpListener, AcceptNoHeader: a.listenOptions.ProxyProtocolAcceptNoHeader}
+	if a.listenOptions.ProxyProtocol || a.listenOptions.ProxyProtocolAcceptNoHeader {
+		return nil, E.New("Proxy Protocol is deprecated and removed in sing-box 1.6.0")
 	}
 	a.tcpListener = tcpListener
 	return tcpListener, err

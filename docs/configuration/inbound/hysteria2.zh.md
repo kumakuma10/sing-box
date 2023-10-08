@@ -4,7 +4,7 @@
 {
   "type": "hysteria2",
   "tag": "hy2-in",
-  
+
   ... // 监听字段
 
   "up_mbps": 100,
@@ -20,14 +20,11 @@
     }
   ],
   "ignore_client_bandwidth": false,
+  "tls": {},
   "masquerade": "",
-  "tls": {}
+  "brutal_debug": false
 }
 ```
-
-!!! warning "与官方客户端的兼容性问题"
-
-    当使用原始客户端时，不支持 `fastOpen=false` 或者 UDP MTU >= 1200 的用例。
 
 !!! warning ""
 
@@ -69,19 +66,23 @@ Hysteria 用户
 
 与 `up_mbps` 和 `down_mbps` 冲突。
 
-#### masquerade
-
-HTTP3 服务器认证失败时的行为。
-
-| Scheme       | 示例                      | 描述      |
-|--------------|-------------------------|---------|
-| `file`       | `file:///var/www`       | 作为文件服务器 |
-| `http/https` | `http://127.0.0.1:8080` | 作为反向代理  |
-
-如果为空，则返回 404 页。
-
 #### tls
 
 ==必填==
 
 TLS 配置, 参阅 [TLS](/zh/configuration/shared/tls/#inbound)。
+
+#### masquerade
+
+HTTP3 服务器认证失败时的行为。
+
+| Scheme       | 示例                    | 描述           |
+| ------------ | ----------------------- | -------------- |
+| `file`       | `file:///var/www`       | 作为文件服务器 |
+| `http/https` | `http://127.0.0.1:8080` | 作为反向代理   |
+
+如果为空，则返回 404 页。
+
+#### brutal_debug
+
+启用 Hysteria Brutal CC 的调试信息日志记录。

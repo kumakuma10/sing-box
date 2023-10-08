@@ -4,7 +4,7 @@
 {
   "type": "hysteria2",
   "tag": "hy2-out",
-  
+
   "server": "127.0.0.1",
   "server_port": 1080,
   "up_mbps": 100,
@@ -16,14 +16,11 @@
   "password": "goofy_ahh_password",
   "network": "tcp",
   "tls": {},
-  
+  "brutal_debug": false,
+
   ... // Dial Fields
 }
 ```
-
-!!! warning "Compatibility issues with the official server"
-
-    The use case of UDP MTU >= 1200 is not supported when using the official server.
 
 !!! warning ""
 
@@ -76,6 +73,10 @@ Both is enabled by default.
 ==Required==
 
 TLS configuration, see [TLS](/configuration/shared/tls/#outbound).
+
+#### brutal_debug
+
+Enable debug information logging for Hysteria Brutal CC.
 
 ### Dial Fields
 

@@ -7,12 +7,12 @@ import (
 	"runtime/debug"
 
 	"github.com/kumakuma10/sing-box/common/badjson"
+	"github.com/kumakuma10/sing-box/common/humanize"
 	"github.com/kumakuma10/sing-box/common/json"
 	"github.com/kumakuma10/sing-box/log"
 	"github.com/kumakuma10/sing-box/option"
 	E "github.com/sagernet/sing/common/exceptions"
 
-	"github.com/dustin/go-humanize"
 	"github.com/go-chi/chi/v5"
 )
 
@@ -37,9 +37,9 @@ func applyDebugListenOption(options option.DebugOptions) {
 			runtime.ReadMemStats(&memStats)
 
 			var memObject badjson.JSONObject
-			memObject.Put("heap", humanize.IBytes(memStats.HeapInuse))
-			memObject.Put("stack", humanize.IBytes(memStats.StackInuse))
-			memObject.Put("idle", humanize.IBytes(memStats.HeapIdle-memStats.HeapReleased))
+			memObject.Put("heap", humanize.MemoryBytes(memStats.HeapInuse))
+			memObject.Put("stack", humanize.MemoryBytes(memStats.StackInuse))
+			memObject.Put("idle", humanize.MemoryBytes(memStats.HeapIdle-memStats.HeapReleased))
 			memObject.Put("goroutines", runtime.NumGoroutine())
 			memObject.Put("rss", rusageMaxRSS())
 

@@ -4,17 +4,17 @@ package inbound
 
 import (
 	"context"
-	"github.com/sagernet/quic-go"
 	"sync"
 
 	"github.com/kumakuma10/sing-box/adapter"
-	"github.com/kumakuma10/sing-box/common/qtls"
 	"github.com/kumakuma10/sing-box/common/tls"
 	C "github.com/kumakuma10/sing-box/constant"
 	"github.com/kumakuma10/sing-box/log"
 	"github.com/kumakuma10/sing-box/option"
 	"github.com/kumakuma10/sing-box/transport/hysteria"
-	"github.com/sagernet/quic-go/congestion"
+	"github.com/sagernet/quic-go"
+	qtls "github.com/sagernet/sing-quic"
+	hyCC "github.com/sagernet/sing-quic/hysteria2/congestion"
 	"github.com/sagernet/sing/common"
 	"github.com/sagernet/sing/common/auth"
 	E "github.com/sagernet/sing/common/exceptions"
@@ -32,7 +32,7 @@ type Hysteria struct {
 	xplusKey     []byte
 	sendBPS      uint64
 	recvBPS      uint64
-	listener     qtls.QUICListener
+	listener     qtls.Listener
 	udpAccess    sync.RWMutex
 	udpSessionId uint32
 	udpSessions  map[uint32]chan *hysteria.UDPMessage
@@ -214,7 +214,7 @@ func (h *Hysteria) accept(ctx context.Context, conn quic.Connection) error {
 	if err != nil {
 		return err
 	}
-	conn.SetCongestionControl(hysteria.NewBrutalSender(congestion.ByteCount(serverSendBPS)))
+	conn.SetCongestionControl(hyCC.NewBrutalSender(serverSendBPS, false, nil))
 	go h.udpRecvLoop(conn)
 	for {
 		var stream quic.Stream

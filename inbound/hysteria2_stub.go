@@ -15,10 +15,6 @@ type Hysteria2 struct {
 	adapter.Inbound
 }
 
-func (h *Hysteria2) Start() error {
-	return C.ErrQUICNotIncluded
-}
-
 func (h *Hysteria2) AddUsers(_ []option.Hysteria2User) error {
 	return C.ErrQUICNotIncluded
 }

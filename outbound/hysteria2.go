@@ -13,7 +13,8 @@ import (
 	C "github.com/kumakuma10/sing-box/constant"
 	"github.com/kumakuma10/sing-box/log"
 	"github.com/kumakuma10/sing-box/option"
-	"github.com/kumakuma10/sing-box/transport/hysteria2"
+	"github.com/kumakuma10/sing-box/transport/hysteria"
+	"github.com/sagernet/sing-quic/hysteria2"
 	"github.com/sagernet/sing/common"
 	"github.com/sagernet/sing/common/bufio"
 	E "github.com/sagernet/sing/common/exceptions"
@@ -60,9 +61,11 @@ func NewHysteria2(ctx context.Context, router adapter.Router, logger log.Context
 	client, err := hysteria2.NewClient(hysteria2.ClientOptions{
 		Context:            ctx,
 		Dialer:             outboundDialer,
+		Logger:             logger,
+		BrutalDebug:        options.BrutalDebug,
 		ServerAddress:      options.ServerOptions.Build(),
-		SendBPS:            uint64(options.UpMbps * 1024 * 1024),
-		ReceiveBPS:         uint64(options.DownMbps * 1024 * 1024),
+		SendBPS:            uint64(options.UpMbps * hysteria.MbpsToBps),
+		ReceiveBPS:         uint64(options.DownMbps * hysteria.MbpsToBps),
 		SalamanderPassword: salamanderPassword,
 		Password:           options.Password,
 		TLSConfig:          tlsConfig,

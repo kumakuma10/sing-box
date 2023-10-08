@@ -6,10 +6,9 @@ import (
 	"time"
 
 	"github.com/kumakuma10/sing-box/adapter"
+	"github.com/sagernet/bbolt"
 	"github.com/sagernet/sing/common/logger"
 	M "github.com/sagernet/sing/common/metadata"
-
-	"go.etcd.io/bbolt"
 )
 
 const fakeipBucketPrefix = "fakeip_"

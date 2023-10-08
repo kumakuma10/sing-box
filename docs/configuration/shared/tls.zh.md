@@ -25,7 +25,15 @@
     "external_account": {
       "key_id": "",
       "mac_key": ""
-    }
+    },
+    "dns01_challenge": {}
+  },
+  "ech": {
+    "enabled": false,
+    "pq_signature_schemes_enabled": false,
+    "dynamic_record_sizing_disabled": false,
+    "key": [],
+    "key_path": ""
   },
   "ech": {
     "enabled": false,
@@ -86,30 +94,30 @@
 
 TLS 版本值：
 
-* `1.0`
-* `1.1`
-* `1.2`
-* `1.3`
+- `1.0`
+- `1.1`
+- `1.2`
+- `1.3`
 
 密码套件值：
 
-* `TLS_RSA_WITH_AES_128_CBC_SHA`
-* `TLS_RSA_WITH_AES_256_CBC_SHA`
-* `TLS_RSA_WITH_AES_128_GCM_SHA256`
-* `TLS_RSA_WITH_AES_256_GCM_SHA384`
-* `TLS_AES_128_GCM_SHA256`
-* `TLS_AES_256_GCM_SHA384`
-* `TLS_CHACHA20_POLY1305_SHA256`
-* `TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA`
-* `TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA`
-* `TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA`
-* `TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA`
-* `TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256`
-* `TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384`
-* `TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256`
-* `TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384`
-* `TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256`
-* `TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256`
+- `TLS_RSA_WITH_AES_128_CBC_SHA`
+- `TLS_RSA_WITH_AES_256_CBC_SHA`
+- `TLS_RSA_WITH_AES_128_GCM_SHA256`
+- `TLS_RSA_WITH_AES_256_GCM_SHA384`
+- `TLS_AES_128_GCM_SHA256`
+- `TLS_AES_256_GCM_SHA384`
+- `TLS_CHACHA20_POLY1305_SHA256`
+- `TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA`
+- `TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA`
+- `TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA`
+- `TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA`
+- `TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256`
+- `TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384`
+- `TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256`
+- `TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384`
+- `TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256`
+- `TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256`
 
 !!! note ""
 
@@ -204,16 +212,16 @@ uTLS 是 "crypto/tls" 的一个分支，它提供了 ClientHello 指纹识别阻
 
 可用的指纹值：
 
-* chrome
-* firefox
-* edge
-* safari
-* 360
-* qq
-* ios
-* android
-* random
-* randomized
+- chrome
+- firefox
+- edge
+- safari
+- 360
+- qq
+- ios
+- android
+- random
+- randomized
 
 默认使用 chrome 指纹。
 
@@ -226,8 +234,7 @@ uTLS 是 "crypto/tls" 的一个分支，它提供了 ClientHello 指纹识别阻
 ECH (Encrypted Client Hello) 是一个 TLS 扩展，它允许客户端加密其 ClientHello 的第一部分
 信息。
 
-
-ECH 配置和密钥可以通过 `sing-box generate ech-keypair [-pq-signature-schemes-enabled]` 生成。
+ECH 配置和密钥可以通过 `sing-box generate ech-keypair [--pq-signature-schemes-enabled]` 生成。
 
 #### pq_signature_schemes_enabled
 
@@ -300,11 +307,11 @@ ACME 数据目录。
 
 要使用的 ACME CA 供应商。
 
-| 值                  | 供应商           |
-|--------------------|---------------|
+| 值                   | 供应商        |
+| -------------------- | ------------- |
 | `letsencrypt (默认)` | Let's Encrypt |
-| `zerossl`          | ZeroSSL       |
-| `https://...`      | 自定义           |
+| `zerossl`            | ZeroSSL       |
+| `https://...`        | 自定义        |
 
 #### disable_http_challenge
 
@@ -338,6 +345,12 @@ EAB（外部帐户绑定）包含将 ACME 帐户绑定或映射到其他已知�
 #### external_account.mac_key
 
 MAC 密钥。
+
+#### dns01_challenge
+
+ACME DNS01 验证字段。如果配置，将禁用其他验证方法。
+
+参阅 [DNS01 验证字段](/configuration/shared/dns01_challenge)。
 
 ### Reality 字段
 

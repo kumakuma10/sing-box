@@ -77,7 +77,6 @@ func NewServer(ctx context.Context, router adapter.Router, logFactory log.Observ
 		externalController:       options.ExternalController != "",
 		storeMode:                options.StoreMode,
 		storeSelected:            options.StoreSelected,
-		externalController:       options.ExternalController != "",
 		storeFakeIP:              options.StoreFakeIP,
 		externalUIDownloadURL:    options.ExternalUIDownloadURL,
 		externalUIDownloadDetour: options.ExternalUIDownloadDetour,

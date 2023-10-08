@@ -13,8 +13,8 @@ import (
 	"time"
 
 	"github.com/kumakuma10/sing-box/adapter"
+	"github.com/kumakuma10/sing-box/common/conntrack"
 	"github.com/kumakuma10/sing-box/common/dialer"
-	"github.com/kumakuma10/sing-box/common/dialer/conntrack"
 	"github.com/kumakuma10/sing-box/common/geoip"
 	"github.com/kumakuma10/sing-box/common/geosite"
 	"github.com/kumakuma10/sing-box/common/mux"
@@ -27,9 +27,9 @@ import (
 	"github.com/kumakuma10/sing-box/option"
 	"github.com/kumakuma10/sing-box/outbound"
 	"github.com/kumakuma10/sing-box/transport/fakeip"
-	"github.com/sagernet/sing-dns"
-	"github.com/sagernet/sing-tun"
-	"github.com/sagernet/sing-vmess"
+	dns "github.com/sagernet/sing-dns"
+	tun "github.com/sagernet/sing-tun"
+	vmess "github.com/sagernet/sing-vmess"
 	"github.com/sagernet/sing/common"
 	"github.com/sagernet/sing/common/buf"
 	"github.com/sagernet/sing/common/bufio"
@@ -604,6 +604,7 @@ func (r *Router) RouteConnection(ctx context.Context, conn net.Conn, metadata ad
 		}
 		return nil
 	}
+	conntrack.KillerCheck()
 	metadata.Network = N.NetworkTCP
 	switch metadata.Destination.Fqdn {
 	case mux.Destination.Fqdn:
@@ -695,6 +696,11 @@ func (r *Router) RouteConnection(ctx context.Context, conn net.Conn, metadata ad
 		metadata.DestinationAddresses = addresses
 		r.dnsLogger.DebugContext(ctx, "resolved [", strings.Join(F.MapToString(metadata.DestinationAddresses), " "), "]")
 	}
+	if metadata.Destination.IsIPv4() {
+		metadata.IPVersion = 4
+	} else if metadata.Destination.IsIPv6() {
+		metadata.IPVersion = 6
+	}
 	ctx, matchedRule, detour, err := r.match(ctx, &metadata, r.defaultOutboundForConnection)
 	if err != nil {
 		return err
@@ -740,6 +746,7 @@ func (r *Router) RoutePacketConnection(ctx context.Context, conn N.PacketConn, m
 		}
 		return nil
 	}
+	conntrack.KillerCheck()
 	metadata.Network = N.NetworkUDP
 
 	if r.fakeIPStore != nil && r.fakeIPStore.Contains(metadata.Destination.Addr) {
@@ -806,6 +813,11 @@ func (r *Router) RoutePacketConnection(ctx context.Context, conn N.PacketConn, m
 		}
 		metadata.DestinationAddresses = addresses
 		r.dnsLogger.DebugContext(ctx, "resolved [", strings.Join(F.MapToString(metadata.DestinationAddresses), " "), "]")
+	}
+	if metadata.Destination.IsIPv4() {
+		metadata.IPVersion = 4
+	} else if metadata.Destination.IsIPv6() {
+		metadata.IPVersion = 6
 	}
 	ctx, matchedRule, detour, err := r.match(ctx, &metadata, r.defaultOutboundForPacketConnection)
 	if err != nil {
@@ -917,13 +929,20 @@ func (r *Router) AutoDetectInterfaceFunc() control.Func {
 	if r.platformInterface != nil && r.platformInterface.UsePlatformAutoDetectInterfaceControl() {
 		return r.platformInterface.AutoDetectInterfaceControl()
 	} else {
-		return control.BindToInterfaceFunc(r.InterfaceFinder(), func(network string, address string) (interfaceName string, interfaceIndex int) {
+		return control.BindToInterfaceFunc(r.InterfaceFinder(), func(network string, address string) (interfaceName string, interfaceIndex int, err error) {
 			remoteAddr := M.ParseSocksaddr(address).Addr
 			if C.IsLinux {
-				return r.InterfaceMonitor().DefaultInterfaceName(remoteAddr), -1
+				interfaceName, interfaceIndex = r.InterfaceMonitor().DefaultInterface(remoteAddr)
+				if interfaceIndex == -1 {
+					err = tun.ErrNoRoute
+				}
 			} else {
-				return "", r.InterfaceMonitor().DefaultInterfaceIndex(remoteAddr)
+				interfaceIndex = r.InterfaceMonitor().DefaultInterfaceIndex(remoteAddr)
+				if interfaceIndex == -1 {
+					err = tun.ErrNoRoute
+				}
 			}
+			return
 		})
 	}
 }
