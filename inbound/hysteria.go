@@ -326,9 +326,20 @@ func (h *Hysteria) AddUsers(users []option.HysteriaUser) error {
 }
 
 func (h *Hysteria) DelUsers(names []string) error {
-	for _, n := range names {
-		delete(h.users, n)
+	userMap := make(map[string]bool)
+	for _, u := range names {
+		userMap[u] = true
 	}
+	for a, n := range h.users {
+		if userMap[n] {
+			delete(userMap, n)
+			delete(h.users, a)
+			if len(userMap) == 0 {
+				break
+			}
+		}
+	}
+
 	return nil
 }
 

@@ -9,7 +9,7 @@ import (
 	C "github.com/kumakuma10/sing-box/constant"
 	"github.com/kumakuma10/sing-box/log"
 	"github.com/kumakuma10/sing-box/option"
-	"github.com/sagernet/sing-shadowsocks"
+	shadowsocks "github.com/sagernet/sing-shadowsocks"
 	"github.com/sagernet/sing-shadowsocks/shadowaead"
 	"github.com/sagernet/sing-shadowsocks/shadowaead_2022"
 	"github.com/sagernet/sing/common"
@@ -110,26 +110,25 @@ func (h *ShadowsocksMulti) AddUsers(users []option.ShadowsocksUser) error {
 }
 
 func (h *ShadowsocksMulti) DelUsers(name []string) error {
-	is := make([]int, 0, len(name))
-	ulen := len(name)
-	for i := range h.users {
-		for _, n := range name {
-			if h.users[i].Name == n {
-				is = append(is, i)
-				ulen--
-			}
-			if ulen == 0 {
+	delUsers := make(map[string]bool)
+	for _, n := range name {
+		delUsers[n] = true
+	}
+
+	i, j := 0, len(h.users)-1
+	for i < j {
+		if delUsers[h.users[i].Name] {
+			h.users[i], h.users[j] = h.users[j], h.users[i]
+			j--
+			delete(delUsers, h.users[i].Name)
+			if len(delUsers) == 0 {
 				break
 			}
+		} else {
+			i++
 		}
 	}
-	ulen = len(h.users)
-	for _, i := range is {
-		h.users[i] = h.users[ulen-1]
-		h.users[ulen-1] = option.ShadowsocksUser{}
-		h.users = h.users[:ulen-1]
-		ulen--
-	}
+	h.users = h.users[:j+1]
 	err := h.service.UpdateUsersWithPasswords(common.MapIndexed(h.users, func(index int, user option.ShadowsocksUser) int {
 		return index
 	}), common.Map(h.users, func(user option.ShadowsocksUser) string {
@@ -155,6 +154,9 @@ func (h *ShadowsocksMulti) newConnection(ctx context.Context, conn net.Conn, met
 	if !loaded {
 		return os.ErrInvalid
 	}
+	if userIndex > len(h.users)-1 {
+		return os.ErrNotExist
+	}
 	user := h.users[userIndex].Name
 	if user == "" {
 		user = F.ToString(userIndex)
@@ -169,6 +171,9 @@ func (h *ShadowsocksMulti) newPacketConnection(ctx context.Context, conn N.Packe
 	userIndex, loaded := auth.UserFromContext[int](ctx)
 	if !loaded {
 		return os.ErrInvalid
+	}
+	if userIndex > len(h.users)-1 {
+		return os.ErrNotExist
 	}
 	user := h.users[userIndex].Name
 	if user == "" {

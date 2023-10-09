@@ -12,7 +12,7 @@ import (
 	"github.com/kumakuma10/sing-box/option"
 	"github.com/kumakuma10/sing-box/transport/v2ray"
 	"github.com/kumakuma10/sing-box/transport/vless"
-	"github.com/sagernet/sing-vmess"
+	vmess "github.com/sagernet/sing-vmess"
 	"github.com/sagernet/sing-vmess/packetaddr"
 	"github.com/sagernet/sing/common"
 	"github.com/sagernet/sing/common/auth"
@@ -134,26 +134,25 @@ func (h *VLESS) AddUsers(users []option.VLESSUser) error {
 }
 
 func (h *VLESS) DelUsers(name []string) error {
-	is := make([]int, 0, len(name))
-	ulen := len(name)
-	for i := range h.users {
-		for _, u := range name {
-			if h.users[i].Name == u {
-				is = append(is, i)
-				ulen--
-			}
-			if ulen == 0 {
+	delUsers := make(map[string]bool)
+	for _, n := range name {
+		delUsers[n] = true
+	}
+
+	i, j := 0, len(h.users)-1
+	for i < j {
+		if delUsers[h.users[i].Name] {
+			h.users[i], h.users[j] = h.users[j], h.users[i]
+			j--
+			delete(delUsers, h.users[i].Name)
+			if len(delUsers) == 0 {
 				break
 			}
+		} else {
+			i++
 		}
 	}
-	ulen = len(h.users)
-	for _, i := range is {
-		h.users[i] = h.users[ulen-1]
-		h.users[ulen-1] = option.VLESSUser{}
-		h.users = h.users[:ulen-1]
-		ulen--
-	}
+	h.users = h.users[:j+1]
 	h.service.UpdateUsers(common.MapIndexed(h.users, func(index int, it option.VLESSUser) int {
 		return index
 	}), common.Map(h.users, func(it option.VLESSUser) string {
@@ -198,6 +197,10 @@ func (h *VLESS) newConnection(ctx context.Context, conn net.Conn, metadata adapt
 	if !loaded {
 		return os.ErrInvalid
 	}
+
+	if userIndex > len(h.users)-1 {
+		return os.ErrNotExist
+	}
 	user := h.users[userIndex].Name
 	if user == "" {
 		user = F.ToString(userIndex)
@@ -212,6 +215,10 @@ func (h *VLESS) newPacketConnection(ctx context.Context, conn N.PacketConn, meta
 	userIndex, loaded := auth.UserFromContext[int](ctx)
 	if !loaded {
 		return os.ErrInvalid
+	}
+
+	if userIndex > len(h.users)-1 {
+		return os.ErrNotExist
 	}
 	user := h.users[userIndex].Name
 	if user == "" {

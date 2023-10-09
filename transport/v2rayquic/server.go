@@ -7,8 +7,6 @@ import (
 	"net"
 	"os"
 
-	"github.com/sagernet/quic-go"
-
 	"github.com/kumakuma10/sing-box/adapter"
 	"github.com/kumakuma10/sing-box/common/tls"
 	C "github.com/kumakuma10/sing-box/constant"

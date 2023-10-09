@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"net/http/httputil"
 	"net/url"
+	"os"
 
 	"github.com/kumakuma10/sing-box/adapter"
 	"github.com/kumakuma10/sing-box/common/tls"
@@ -119,6 +120,9 @@ func (h *Hysteria2) newConnection(ctx context.Context, conn net.Conn, metadata a
 	ctx = log.ContextWithNewID(ctx)
 	metadata = h.createMetadata(conn, metadata)
 	userID, _ := auth.UserFromContext[int](ctx)
+	if userID > len(h.users)-1 {
+		return os.ErrNotExist
+	}
 	if userName := h.users[userID].Name; userName != "" {
 		metadata.User = userName
 		h.logger.InfoContext(ctx, "[", userName, "] inbound connection to ", metadata.Destination)
@@ -132,6 +136,9 @@ func (h *Hysteria2) newPacketConnection(ctx context.Context, conn N.PacketConn, 
 	ctx = log.ContextWithNewID(ctx)
 	metadata = h.createPacketMetadata(conn, metadata)
 	userID, _ := auth.UserFromContext[int](ctx)
+	if userID > len(h.users)-1 {
+		return os.ErrNotExist
+	}
 	if userName := h.users[userID].Name; userName != "" {
 		metadata.User = userName
 		h.logger.InfoContext(ctx, "[", userName, "] inbound packet connection to ", metadata.Destination)
@@ -163,27 +170,27 @@ func (h *Hysteria2) AddUsers(users []option.Hysteria2User) error {
 	h.updateUsers()
 	return nil
 }
+
 func (h *Hysteria2) DelUsers(name []string) error {
-	is := make([]int, 0, len(name))
-	ulen := len(name)
-	for i := range h.users {
-		for _, u := range name {
-			if h.users[i].Name == u {
-				is = append(is, i)
-				ulen--
-			}
-			if ulen == 0 {
+	delUsers := make(map[string]bool)
+	for _, n := range name {
+		delUsers[n] = true
+	}
+
+	i, j := 0, len(h.users)-1
+	for i < j {
+		if delUsers[h.users[i].Name] {
+			h.users[i], h.users[j] = h.users[j], h.users[i]
+			j--
+			delete(delUsers, h.users[i].Name)
+			if len(delUsers) == 0 {
 				break
 			}
+		} else {
+			i++
 		}
 	}
-	ulen = len(h.users)
-	for _, i := range is {
-		h.users[i] = h.users[ulen-1]
-		h.users[ulen-1] = option.Hysteria2User{}
-		h.users = h.users[:ulen-1]
-		ulen--
-	}
+	h.users = h.users[:j+1]
 	h.updateUsers()
 	return nil
 }
