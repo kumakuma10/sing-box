@@ -22,8 +22,6 @@ require (
 	github.com/oschwald/maxminddb-golang v1.12.0
 	github.com/sagernet/bbolt v0.0.0-20231008142710-b2d6e2f20458
 	github.com/sagernet/cloudflare-tls v0.0.0-20230829051644-4a68352d0c4a
-	github.com/sagernet/gomobile v0.0.0-20230915142329-c6740b6d2950
-	github.com/sagernet/gvisor v0.0.0-20230930141345-5fef6f2e17ab
 	github.com/sagernet/quic-go v0.0.0-20231008035953-32727fef9460
 	github.com/sagernet/reality v0.0.0-20230406110435-ee17307e7691
 	github.com/sagernet/sing v0.2.14-0.20231011041941-e4d9384bcd84
