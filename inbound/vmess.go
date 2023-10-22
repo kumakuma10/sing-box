@@ -2,6 +2,7 @@ package inbound
 
 import (
 	"context"
+	"fmt"
 	"net"
 	"os"
 
@@ -16,7 +17,6 @@ import (
 	"github.com/sagernet/sing/common"
 	"github.com/sagernet/sing/common/auth"
 	E "github.com/sagernet/sing/common/exceptions"
-	F "github.com/sagernet/sing/common/format"
 	M "github.com/sagernet/sing/common/metadata"
 	N "github.com/sagernet/sing/common/network"
 	"github.com/sagernet/sing/common/ntp"
@@ -30,8 +30,8 @@ var (
 type VMess struct {
 	myInboundAdapter
 	ctx       context.Context
-	service   *vmess.Service[int]
-	users     []option.VMessUser
+	service   *vmess.Service[string]
+	users     map[string]option.VMessUser
 	tlsConfig tls.ServerConfig
 	transport adapter.V2RayServerTransport
 }
@@ -47,8 +47,7 @@ func NewVMess(ctx context.Context, router adapter.Router, logger log.ContextLogg
 			tag:           tag,
 			listenOptions: options.ListenOptions,
 		},
-		ctx:   ctx,
-		users: options.Users,
+		ctx: ctx,
 	}
 	var serviceOptions []vmess.ServiceOption
 	if timeFunc := ntp.TimeFuncFromContext(ctx); timeFunc != nil {
@@ -57,10 +56,24 @@ func NewVMess(ctx context.Context, router adapter.Router, logger log.ContextLogg
 	if options.Transport != nil && options.Transport.Type != "" {
 		serviceOptions = append(serviceOptions, vmess.ServiceWithDisableHeaderProtection())
 	}
-	service := vmess.NewService[int](adapter.NewUpstreamContextHandler(inbound.newConnection, inbound.newPacketConnection, inbound), serviceOptions...)
+	service := vmess.NewService[string](adapter.NewUpstreamContextHandler(inbound.newConnection, inbound.newPacketConnection, inbound), serviceOptions...)
 	inbound.service = service
-	err := service.UpdateUsers(common.MapIndexed(options.Users, func(index int, it option.VMessUser) int {
-		return index
+	users := make(map[string]option.VMessUser)
+	for _, user := range options.Users {
+		name := user.Name
+		if user.Name == "" {
+			name = fmt.Sprintf("user%d", user.UUID)
+
+		}
+		users[name] = user
+	}
+	inbound.users = users
+	err := service.UpdateUsers(common.Map(options.Users, func(it option.VMessUser) string {
+		if it.Name == "" {
+			return fmt.Sprintf("user%d", it.UUID)
+		}
+		return it.Name
+
 	}), common.Map(options.Users, func(it option.VMessUser) string {
 		return it.UUID
 	}), common.Map(options.Users, func(it option.VMessUser) int {
@@ -123,59 +136,31 @@ func (h *VMess) Start() error {
 	return nil
 }
 
+func (h *VMess) updateUsers() error {
+	userNames := make([]string, 0, len(h.users))
+	userIds := make([]string, 0, len(h.users))
+	userAlterIds := make([]int, 0, len(h.users))
+	for _, u := range h.users {
+		userNames = append(userNames, u.Name)
+		userIds = append(userIds, u.UUID)
+		userAlterIds = append(userAlterIds, u.AlterId)
+	}
+	return h.service.UpdateUsers(userNames, userIds, userAlterIds)
+}
+
 func (h *VMess) AddUsers(users []option.VMessUser) error {
-	if cap(h.users)-len(h.users) >= len(users) {
-		h.users = append(h.users, users...)
-	} else {
-		tmp := make([]option.VMessUser, 0, len(h.users)+len(users)+10)
-		tmp = append(tmp, h.users...)
-		tmp = append(tmp, users...)
-		h.users = tmp
+	for _, u := range users {
+		h.users[u.Name] = u
+
 	}
-	err := h.service.UpdateUsers(common.MapIndexed(h.users, func(index int, it option.VMessUser) int {
-		return index
-	}), common.Map(h.users, func(it option.VMessUser) string {
-		return it.UUID
-	}), common.Map(h.users, func(it option.VMessUser) int {
-		return it.AlterId
-	}))
-	if err != nil {
-		return err
-	}
-	return nil
+	return h.updateUsers()
 }
 
 func (h *VMess) DelUsers(name []string) error {
-	delUsers := make(map[string]bool)
 	for _, n := range name {
-		delUsers[n] = true
+		delete(h.users, n)
 	}
-
-	i, j := 0, len(h.users)-1
-	for i < j {
-		if delUsers[h.users[i].Name] {
-			h.users[i], h.users[j] = h.users[j], h.users[i]
-			j--
-			delete(delUsers, h.users[i].Name)
-			if len(delUsers) == 0 {
-				break
-			}
-		} else {
-			i++
-		}
-	}
-	h.users = h.users[:j+1]
-	err := h.service.UpdateUsers(common.MapIndexed(h.users, func(index int, it option.VMessUser) int {
-		return index
-	}), common.Map(h.users, func(it option.VMessUser) string {
-		return it.UUID
-	}), common.Map(h.users, func(it option.VMessUser) int {
-		return it.AlterId
-	}))
-	if err != nil {
-		return err
-	}
-	return nil
+	return h.updateUsers()
 }
 
 func (h *VMess) Close() error {
@@ -208,37 +193,27 @@ func (h *VMess) NewPacketConnection(ctx context.Context, conn N.PacketConn, meta
 }
 
 func (h *VMess) newConnection(ctx context.Context, conn net.Conn, metadata adapter.InboundContext) error {
-	userIndex, loaded := auth.UserFromContext[int](ctx)
+	user, loaded := auth.UserFromContext[string](ctx)
 	if !loaded {
 		return os.ErrInvalid
 	}
-	if userIndex > len(h.users)-1 {
-		return os.ErrNotExist
+	if _, exist := h.users[user]; !exist {
+		return E.New("user not exist")
 	}
-	user := h.users[userIndex].Name
-	if user == "" {
-		user = F.ToString(userIndex)
-	} else {
-		metadata.User = user
-	}
+	metadata.User = user
 	h.logger.InfoContext(ctx, "[", user, "] inbound connection to ", metadata.Destination)
 	return h.router.RouteConnection(ctx, conn, metadata)
 }
 
 func (h *VMess) newPacketConnection(ctx context.Context, conn N.PacketConn, metadata adapter.InboundContext) error {
-	userIndex, loaded := auth.UserFromContext[int](ctx)
+	user, loaded := auth.UserFromContext[string](ctx)
 	if !loaded {
 		return os.ErrInvalid
 	}
-	if userIndex > len(h.users)-1 {
-		return os.ErrNotExist
+	if _, exist := h.users[user]; !exist {
+		return E.New("user not exist")
 	}
-	user := h.users[userIndex].Name
-	if user == "" {
-		user = F.ToString(userIndex)
-	} else {
-		metadata.User = user
-	}
+	metadata.User = user
 	if metadata.Destination.Fqdn == packetaddr.SeqPacketMagicAddress {
 		metadata.Destination = M.Socksaddr{}
 		conn = packetaddr.NewConn(conn.(vmess.PacketConn), metadata.Destination)

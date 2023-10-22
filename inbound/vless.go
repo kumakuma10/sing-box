@@ -17,7 +17,6 @@ import (
 	"github.com/sagernet/sing/common"
 	"github.com/sagernet/sing/common/auth"
 	E "github.com/sagernet/sing/common/exceptions"
-	F "github.com/sagernet/sing/common/format"
 	M "github.com/sagernet/sing/common/metadata"
 	N "github.com/sagernet/sing/common/network"
 )
@@ -30,8 +29,8 @@ var (
 type VLESS struct {
 	myInboundAdapter
 	ctx       context.Context
-	users     []option.VLESSUser
-	service   *vless.Service[int]
+	users     map[string]option.VLESSUser
+	service   *vless.Service[string]
 	tlsConfig tls.ServerConfig
 	transport adapter.V2RayServerTransport
 }
@@ -47,18 +46,27 @@ func NewVLESS(ctx context.Context, router adapter.Router, logger log.ContextLogg
 			tag:           tag,
 			listenOptions: options.ListenOptions,
 		},
-		ctx:   ctx,
-		users: options.Users,
+		ctx: ctx,
 	}
-	service := vless.NewService[int](logger, adapter.NewUpstreamContextHandler(inbound.newConnection, inbound.newPacketConnection, inbound))
-	service.UpdateUsers(common.MapIndexed(inbound.users, func(index int, _ option.VLESSUser) int {
-		return index
-	}), common.Map(inbound.users, func(it option.VLESSUser) string {
-		return it.UUID
-	}), common.Map(inbound.users, func(it option.VLESSUser) string {
-		return it.Flow
-	}))
+	service := vless.NewService[string](logger, adapter.NewUpstreamContextHandler(inbound.newConnection, inbound.newPacketConnection, inbound))
+	users := make(map[string]option.VLESSUser)
+	userNameList := make([]string, 0, len(inbound.users))
+	userUUIDList := make([]string, 0, len(inbound.users))
+	userFlowList := make([]string, 0, len(inbound.users))
+	for _, user := range inbound.users {
+		name := user.Name
+		if name == "" {
+			name = user.Name
+		}
+		userNameList = append(userNameList, name)
+		userUUIDList = append(userUUIDList, user.UUID)
+		userFlowList = append(userFlowList, user.Flow)
+		users[name] = user
+
+	}
+	service.UpdateUsers(userNameList, userUUIDList, userFlowList)
 	inbound.service = service
+	inbound.users = users
 	var err error
 	if options.TLS != nil {
 		inbound.tlsConfig, err = tls.NewServer(ctx, logger, common.PtrValueOrDefault(options.TLS))
@@ -114,53 +122,36 @@ func (h *VLESS) Start() error {
 	return nil
 }
 
-func (h *VLESS) AddUsers(users []option.VLESSUser) error {
-	if cap(h.users)-len(h.users) >= len(users) {
-		h.users = append(h.users, users...)
-	} else {
-		tmp := make([]option.VLESSUser, 0, len(h.users)+len(users)+10)
-		tmp = append(tmp, h.users...)
-		tmp = append(tmp, users...)
-		h.users = tmp
+func (h *VLESS) updateUsers() error {
+	userNameList := make([]string, 0, len(h.users))
+	userUUIDList := make([]string, 0, len(h.users))
+	userFlowList := make([]string, 0, len(h.users))
+	for _, user := range h.users {
+		name := user.Name
+		if name == "" {
+			name = user.Name
+		}
+		userNameList = append(userNameList, name)
+		userUUIDList = append(userUUIDList, user.UUID)
+		userFlowList = append(userFlowList, user.Flow)
 	}
-	h.service.UpdateUsers(common.MapIndexed(h.users, func(index int, it option.VLESSUser) int {
-		return index
-	}), common.Map(h.users, func(it option.VLESSUser) string {
-		return it.UUID
-	}), common.Map(h.users, func(it option.VLESSUser) string {
-		return it.Flow
-	}))
+	h.service.UpdateUsers(userNameList, userUUIDList, userFlowList)
 	return nil
+
+}
+
+func (h *VLESS) AddUsers(users []option.VLESSUser) error {
+	for _, u := range users {
+		h.users[u.Name] = u
+	}
+	return h.updateUsers()
 }
 
 func (h *VLESS) DelUsers(name []string) error {
-	delUsers := make(map[string]bool)
 	for _, n := range name {
-		delUsers[n] = true
+		delete(h.users, n)
 	}
-
-	i, j := 0, len(h.users)-1
-	for i < j {
-		if delUsers[h.users[i].Name] {
-			h.users[i], h.users[j] = h.users[j], h.users[i]
-			j--
-			delete(delUsers, h.users[i].Name)
-			if len(delUsers) == 0 {
-				break
-			}
-		} else {
-			i++
-		}
-	}
-	h.users = h.users[:j+1]
-	h.service.UpdateUsers(common.MapIndexed(h.users, func(index int, it option.VLESSUser) int {
-		return index
-	}), common.Map(h.users, func(it option.VLESSUser) string {
-		return it.UUID
-	}), common.Map(h.users, func(it option.VLESSUser) string {
-		return it.Flow
-	}))
-	return nil
+	return h.updateUsers()
 }
 
 func (h *VLESS) Close() error {
@@ -193,39 +184,28 @@ func (h *VLESS) NewPacketConnection(ctx context.Context, conn N.PacketConn, meta
 }
 
 func (h *VLESS) newConnection(ctx context.Context, conn net.Conn, metadata adapter.InboundContext) error {
-	userIndex, loaded := auth.UserFromContext[int](ctx)
+	user, loaded := auth.UserFromContext[string](ctx)
 	if !loaded {
 		return os.ErrInvalid
 	}
+	if _, exist := h.users[user]; !exist {
+		return E.New("user not exist")
+	}
+	metadata.User = user
 
-	if userIndex > len(h.users)-1 {
-		return os.ErrNotExist
-	}
-	user := h.users[userIndex].Name
-	if user == "" {
-		user = F.ToString(userIndex)
-	} else {
-		metadata.User = user
-	}
 	h.logger.InfoContext(ctx, "[", user, "] inbound connection to ", metadata.Destination)
 	return h.router.RouteConnection(ctx, conn, metadata)
 }
 
 func (h *VLESS) newPacketConnection(ctx context.Context, conn N.PacketConn, metadata adapter.InboundContext) error {
-	userIndex, loaded := auth.UserFromContext[int](ctx)
+	user, loaded := auth.UserFromContext[string](ctx)
 	if !loaded {
 		return os.ErrInvalid
 	}
-
-	if userIndex > len(h.users)-1 {
-		return os.ErrNotExist
+	if _, exist := h.users[user]; !exist {
+		return E.New("user not exist")
 	}
-	user := h.users[userIndex].Name
-	if user == "" {
-		user = F.ToString(userIndex)
-	} else {
-		metadata.User = user
-	}
+	metadata.User = user
 	if metadata.Destination.Fqdn == packetaddr.SeqPacketMagicAddress {
 		metadata.Destination = M.Socksaddr{}
 		conn = packetaddr.NewConn(conn.(vmess.PacketConn), metadata.Destination)

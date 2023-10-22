@@ -8,7 +8,6 @@ import (
 	"net/http"
 	"net/http/httputil"
 	"net/url"
-	"os"
 
 	"github.com/kumakuma10/sing-box/adapter"
 	"github.com/kumakuma10/sing-box/common/tls"
@@ -28,8 +27,8 @@ var _ adapter.Inbound = (*Hysteria2)(nil)
 type Hysteria2 struct {
 	myInboundAdapter
 	tlsConfig tls.ServerConfig
-	service   *hysteria2.Service[int]
-	users     []option.Hysteria2User
+	service   *hysteria2.Service[string]
+	users     map[string]string
 }
 
 func NewHysteria2(ctx context.Context, router adapter.Router, logger log.ContextLogger, tag string, options option.Hysteria2InboundOptions) (*Hysteria2, error) {
@@ -85,10 +84,9 @@ func NewHysteria2(ctx context.Context, router adapter.Router, logger log.Context
 			tag:           tag,
 			listenOptions: options.ListenOptions,
 		},
-		users:     options.Users,
 		tlsConfig: tlsConfig,
 	}
-	service, err := hysteria2.NewService[int](hysteria2.ServiceOptions{
+	service, err := hysteria2.NewService[string](hysteria2.ServiceOptions{
 		Context:               ctx,
 		Logger:                logger,
 		BrutalDebug:           options.BrutalDebug,
@@ -103,94 +101,71 @@ func NewHysteria2(ctx context.Context, router adapter.Router, logger log.Context
 	if err != nil {
 		return nil, err
 	}
-	userList := make([]int, 0, len(options.Users))
 	userNameList := make([]string, 0, len(options.Users))
 	userPasswordList := make([]string, 0, len(options.Users))
-	for index, user := range options.Users {
-		userList = append(userList, index)
-		userNameList = append(userNameList, user.Name)
-		userPasswordList = append(userPasswordList, user.Password)
+	users := make(map[string]string)
+	for _, u := range options.Users {
+		userNameList = append(userNameList, u.Name)
+		userPasswordList = append(userPasswordList, u.Password)
+		users[u.Name] = u.Password
 	}
-	service.UpdateUsers(userList, userPasswordList)
+	service.UpdateUsers(userNameList, userPasswordList)
 	inbound.service = service
+	inbound.users = users
 	return inbound, nil
 }
 
 func (h *Hysteria2) newConnection(ctx context.Context, conn net.Conn, metadata adapter.InboundContext) error {
 	ctx = log.ContextWithNewID(ctx)
 	metadata = h.createMetadata(conn, metadata)
-	userID, _ := auth.UserFromContext[int](ctx)
-	if userID > len(h.users)-1 {
-		return os.ErrNotExist
+	user, _ := auth.UserFromContext[string](ctx)
+	if _, exist := h.users[user]; !exist {
+		return E.New("user not exist")
 	}
-	if userName := h.users[userID].Name; userName != "" {
-		metadata.User = userName
-		h.logger.InfoContext(ctx, "[", userName, "] inbound connection to ", metadata.Destination)
-	} else {
-		h.logger.InfoContext(ctx, "inbound connection to ", metadata.Destination)
-	}
+	metadata.User = user
+	h.logger.InfoContext(ctx, "[", user, "] inbound connection to ", metadata.Destination)
 	return h.router.RouteConnection(ctx, conn, metadata)
 }
 
 func (h *Hysteria2) newPacketConnection(ctx context.Context, conn N.PacketConn, metadata adapter.InboundContext) error {
 	ctx = log.ContextWithNewID(ctx)
 	metadata = h.createPacketMetadata(conn, metadata)
-	userID, _ := auth.UserFromContext[int](ctx)
-	if userID > len(h.users)-1 {
-		return os.ErrNotExist
+	user, _ := auth.UserFromContext[string](ctx)
+	if _, exist := h.users[user]; !exist {
+		return E.New("user not exist")
 	}
-	if userName := h.users[userID].Name; userName != "" {
-		metadata.User = userName
-		h.logger.InfoContext(ctx, "[", userName, "] inbound packet connection to ", metadata.Destination)
-	} else {
-		h.logger.InfoContext(ctx, "inbound packet connection to ", metadata.Destination)
-	}
+
+	metadata.User = user
+	h.logger.InfoContext(ctx, "[", user, "] inbound packet connection to ", metadata.Destination)
 	return h.router.RoutePacketConnection(ctx, conn, metadata)
 }
 
 // v2bx
 
 func (h *Hysteria2) updateUsers() {
-	h.service.UpdateUsers(common.MapIndexed[option.Hysteria2User, int](h.users, func(index int, it option.Hysteria2User) int {
-		return index
-	}), common.Map[option.Hysteria2User, string](h.users, func(it option.Hysteria2User) string {
-		return it.Password
-	}))
+	userNames := make([]string, 0, len(h.users))
+	userPasswords := make([]string, 0, len(h.users))
+	for u, p := range h.users {
+		userNames = append(userNames, u)
+		userPasswords = append(userPasswords, p)
+	}
+	h.service.UpdateUsers(userNames, userPasswords)
 }
 
 func (h *Hysteria2) AddUsers(users []option.Hysteria2User) error {
-	if cap(h.users)-len(h.users) >= len(users) {
-		h.users = append(h.users, users...)
-	} else {
-		tmp := make([]option.Hysteria2User, 0, len(h.users)+len(users)+10)
-		tmp = append(tmp, h.users...)
-		tmp = append(tmp, users...)
-		h.users = tmp
+	for _, u := range users {
+		h.users[u.Name] = u.Password
 	}
+
 	h.updateUsers()
 	return nil
 }
 
-func (h *Hysteria2) DelUsers(name []string) error {
-	delUsers := make(map[string]bool)
-	for _, n := range name {
-		delUsers[n] = true
+func (h *Hysteria2) DelUsers(names []string) error {
+	for _, n := range names {
+		delete(h.users, n)
 	}
 
-	i, j := 0, len(h.users)-1
-	for i < j {
-		if delUsers[h.users[i].Name] {
-			h.users[i], h.users[j] = h.users[j], h.users[i]
-			j--
-			delete(delUsers, h.users[i].Name)
-			if len(delUsers) == 0 {
-				break
-			}
-		} else {
-			i++
-		}
-	}
-	h.users = h.users[:j+1]
 	h.updateUsers()
 	return nil
 }

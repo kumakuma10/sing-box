@@ -15,7 +15,6 @@ import (
 	"github.com/sagernet/sing/common"
 	"github.com/sagernet/sing/common/auth"
 	E "github.com/sagernet/sing/common/exceptions"
-	F "github.com/sagernet/sing/common/format"
 	M "github.com/sagernet/sing/common/metadata"
 	N "github.com/sagernet/sing/common/network"
 )
@@ -27,8 +26,8 @@ var (
 
 type Trojan struct {
 	myInboundAdapter
-	service                  *trojan.Service[int]
-	users                    []option.TrojanUser
+	service                  *trojan.Service[string]
+	users                    map[string]string
 	tlsConfig                tls.ServerConfig
 	fallbackAddr             M.Socksaddr
 	fallbackAddrTLSNextProto map[string]M.Socksaddr
@@ -46,7 +45,6 @@ func NewTrojan(ctx context.Context, router adapter.Router, logger log.ContextLog
 			tag:           tag,
 			listenOptions: options.ListenOptions,
 		},
-		users: options.Users,
 	}
 	if options.TLS != nil {
 		tlsConfig, err := tls.NewServer(ctx, logger, common.PtrValueOrDefault(options.TLS))
@@ -79,12 +77,16 @@ func NewTrojan(ctx context.Context, router adapter.Router, logger log.ContextLog
 		}
 		fallbackHandler = adapter.NewUpstreamContextHandler(inbound.fallbackConnection, nil, nil)
 	}
-	service := trojan.NewService[int](adapter.NewUpstreamContextHandler(inbound.newConnection, inbound.newPacketConnection, inbound), fallbackHandler)
-	err := service.UpdateUsers(common.MapIndexed(options.Users, func(index int, it option.TrojanUser) int {
-		return index
-	}), common.Map(options.Users, func(it option.TrojanUser) string {
-		return it.Password
-	}))
+	service := trojan.NewService[string](adapter.NewUpstreamContextHandler(inbound.newConnection, inbound.newPacketConnection, inbound), fallbackHandler)
+	users := make(map[string]string)
+	userNameList := make([]string, 0, len(options.Users))
+	userPasswordList := make([]string, 0, len(options.Users))
+	for _, user := range options.Users {
+		users[user.Name] = user.Password
+		userNameList = append(userNameList, user.Name)
+		userPasswordList = append(userPasswordList, user.Password)
+	}
+	err := service.UpdateUsers(userNameList, userPasswordList)
 	if err != nil {
 		return nil, err
 	}
@@ -144,52 +146,30 @@ func (h *Trojan) Close() error {
 	)
 }
 
+func (h *Trojan) updateUsers() error {
+	userNameList := make([]string, 0, len(h.users))
+	userPasswordList := make([]string, 0, len(h.users))
+	for u, p := range h.users {
+		userNameList = append(userNameList, u)
+		userPasswordList = append(userPasswordList, p)
+	}
+	return h.service.UpdateUsers(userNameList, userPasswordList)
+
+}
+
 func (h *Trojan) AddUsers(users []option.TrojanUser) error {
-	if cap(h.users)-len(h.users) >= len(users) {
-		h.users = append(h.users, users...)
-	} else {
-		tmp := make([]option.TrojanUser, 0, len(h.users)+len(users)+10)
-		tmp = append(tmp, h.users...)
-		tmp = append(tmp, users...)
-		h.users = tmp
+	for _, u := range users {
+		h.users[u.Name] = u.Password
 	}
-	err := h.service.UpdateUsers(common.MapIndexed(h.users, func(index int, user option.TrojanUser) int {
-		return index
-	}), common.Map(h.users, func(user option.TrojanUser) string {
-		return user.Password
-	}))
-	if err != nil {
-		return err
-	}
-	return nil
+	return h.updateUsers()
 }
 
 func (h *Trojan) DelUsers(names []string) error {
-	delUsers := make(map[string]bool)
 	for _, n := range names {
-		delUsers[n] = true
+		delete(h.users, n)
 	}
+	return h.updateUsers()
 
-	i, j := 0, len(h.users)-1
-	for i < j {
-		if delUsers[h.users[i].Name] {
-			h.users[i], h.users[j] = h.users[j], h.users[i]
-			j--
-			delete(delUsers, h.users[i].Name)
-			if len(delUsers) == 0 {
-				break
-			}
-		} else {
-			i++
-		}
-	}
-	h.users = h.users[:j+1]
-	err := h.service.UpdateUsers(common.MapIndexed(h.users, func(index int, user option.TrojanUser) int {
-		return index
-	}), common.Map(h.users, func(user option.TrojanUser) string {
-		return user.Password
-	}))
-	return err
 }
 
 func (h *Trojan) newTransportConnection(ctx context.Context, conn net.Conn, metadata adapter.InboundContext) error {
@@ -213,20 +193,14 @@ func (h *Trojan) NewPacketConnection(ctx context.Context, conn N.PacketConn, met
 }
 
 func (h *Trojan) newConnection(ctx context.Context, conn net.Conn, metadata adapter.InboundContext) error {
-	userIndex, loaded := auth.UserFromContext[int](ctx)
+	user, loaded := auth.UserFromContext[string](ctx)
 	if !loaded {
 		return os.ErrInvalid
 	}
-
-	if userIndex > len(h.users)-1 {
-		return os.ErrNotExist
+	if _, exist := h.users[user]; !exist {
+		return E.New("user not exist")
 	}
-	user := h.users[userIndex].Name
-	if user == "" {
-		user = F.ToString(userIndex)
-	} else {
-		metadata.User = user
-	}
+	metadata.User = user
 	h.logger.InfoContext(ctx, "[", user, "] inbound connection to ", metadata.Destination)
 	return h.router.RouteConnection(ctx, conn, metadata)
 }
@@ -255,19 +229,14 @@ func (h *Trojan) fallbackConnection(ctx context.Context, conn net.Conn, metadata
 }
 
 func (h *Trojan) newPacketConnection(ctx context.Context, conn N.PacketConn, metadata adapter.InboundContext) error {
-	userIndex, loaded := auth.UserFromContext[int](ctx)
+	user, loaded := auth.UserFromContext[string](ctx)
 	if !loaded {
 		return os.ErrInvalid
 	}
-	if userIndex > len(h.users)-1 {
-		return os.ErrNotExist
+	if _, exist := h.users[user]; !exist {
+		return E.New("user not exist")
 	}
-	user := h.users[userIndex].Name
-	if user == "" {
-		user = F.ToString(userIndex)
-	} else {
-		metadata.User = user
-	}
+	metadata.User = user
 	h.logger.InfoContext(ctx, "[", user, "] inbound packet connection to ", metadata.Destination)
 	return h.router.RoutePacketConnection(ctx, conn, metadata)
 }
