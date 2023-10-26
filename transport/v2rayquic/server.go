@@ -11,7 +11,6 @@ import (
 	"github.com/kumakuma10/sing-box/common/tls"
 	C "github.com/kumakuma10/sing-box/constant"
 	"github.com/kumakuma10/sing-box/option"
-	"github.com/kumakuma10/sing-box/transport/hysteria"
 	"github.com/sagernet/quic-go"
 	qtls "github.com/sagernet/sing-quic"
 	"github.com/sagernet/sing/common"
@@ -86,7 +85,7 @@ func (s *Server) streamAcceptLoop(conn quic.Connection) error {
 		if err != nil {
 			return err
 		}
-		go s.handler.NewConnection(conn.Context(), &hysteria.StreamWrapper{Conn: conn, Stream: stream}, M.Metadata{})
+		go s.handler.NewConnection(conn.Context(), &StreamWrapper{Conn: conn, Stream: stream}, M.Metadata{})
 	}
 }
 

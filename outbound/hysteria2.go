@@ -13,7 +13,7 @@ import (
 	C "github.com/kumakuma10/sing-box/constant"
 	"github.com/kumakuma10/sing-box/log"
 	"github.com/kumakuma10/sing-box/option"
-	"github.com/kumakuma10/sing-box/transport/hysteria"
+	"github.com/sagernet/sing-quic/hysteria"
 	"github.com/sagernet/sing-quic/hysteria2"
 	"github.com/sagernet/sing/common"
 	"github.com/sagernet/sing/common/bufio"

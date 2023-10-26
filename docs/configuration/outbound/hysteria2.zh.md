@@ -18,8 +18,6 @@
   "tls": {},
   "brutal_debug": false,
 
-  "brutal_debug": false,
-
   ... // 拨号字段
 }
 ```

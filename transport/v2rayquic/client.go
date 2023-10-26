@@ -8,12 +8,11 @@ import (
 	"sync"
 
 	"github.com/kumakuma10/sing-box/adapter"
+	"github.com/kumakuma10/sing-box/common/qtls"
 	"github.com/kumakuma10/sing-box/common/tls"
 	C "github.com/kumakuma10/sing-box/constant"
 	"github.com/kumakuma10/sing-box/option"
-	"github.com/kumakuma10/sing-box/transport/hysteria"
 	"github.com/sagernet/quic-go"
-	qtls "github.com/sagernet/sing-quic"
 	"github.com/sagernet/sing/common"
 	"github.com/sagernet/sing/common/bufio"
 	M "github.com/sagernet/sing/common/metadata"
@@ -93,7 +92,7 @@ func (c *Client) DialContext(ctx context.Context) (net.Conn, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &hysteria.StreamWrapper{Conn: conn, Stream: stream}, nil
+	return &StreamWrapper{Conn: conn, Stream: stream}, nil
 }
 
 func (c *Client) Close() error {
