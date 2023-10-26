@@ -2,7 +2,6 @@ package inbound
 
 import (
 	"context"
-	"fmt"
 	"net"
 	"os"
 
@@ -62,7 +61,7 @@ func NewVMess(ctx context.Context, router adapter.Router, logger log.ContextLogg
 	for _, user := range options.Users {
 		name := user.Name
 		if user.Name == "" {
-			name = fmt.Sprintf("user%d", user.UUID)
+			name = user.UUID
 
 		}
 		users[name] = user
@@ -70,7 +69,7 @@ func NewVMess(ctx context.Context, router adapter.Router, logger log.ContextLogg
 	inbound.users = users
 	err := service.UpdateUsers(common.Map(options.Users, func(it option.VMessUser) string {
 		if it.Name == "" {
-			return fmt.Sprintf("user%d", it.UUID)
+			return it.UUID
 		}
 		return it.Name
 
