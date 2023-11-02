@@ -2,13 +2,18 @@ package main
 
 import (
 	"context"
+	"crypto/tls"
+	"io"
 	"net"
+	"net/http"
 	"testing"
 	"time"
 
-	"github.com/kumakuma10/sing-box"
+	box "github.com/kumakuma10/sing-box"
 	C "github.com/kumakuma10/sing-box/constant"
 	"github.com/kumakuma10/sing-box/option"
+	"github.com/sagernet/quic-go"
+	"github.com/sagernet/quic-go/http3"
 	"github.com/sagernet/sing/common/bufio"
 	"github.com/sagernet/sing/common/debug"
 	M "github.com/sagernet/sing/common/metadata"
@@ -72,6 +77,28 @@ func testSuit(t *testing.T, clientPort uint16, testPort uint16) {
 	require.NoError(t, testLargeDataWithPacketConn(t, testPort, dialUDP))
 
 	// require.NoError(t, testPacketConnTimeout(t, dialUDP))
+}
+
+func testQUIC(t *testing.T, clientPort uint16) {
+	dialer := socks.NewClient(N.SystemDialer, M.ParseSocksaddrHostPort("127.0.0.1", clientPort), socks.Version5, "", "")
+	client := &http.Client{
+		Transport: &http3.RoundTripper{
+			Dial: func(ctx context.Context, addr string, tlsCfg *tls.Config, cfg *quic.Config) (quic.EarlyConnection, error) {
+				destination := M.ParseSocksaddr(addr)
+				udpConn, err := dialer.DialContext(ctx, N.NetworkUDP, destination)
+				if err != nil {
+					return nil, err
+				}
+				return quic.DialEarly(ctx, udpConn.(net.PacketConn), destination, tlsCfg, cfg)
+			},
+		},
+	}
+	response, err := client.Get("https://cloudflare.com/cdn-cgi/trace")
+	require.NoError(t, err)
+	require.Equal(t, http.StatusOK, response.StatusCode)
+	content, err := io.ReadAll(response.Body)
+	require.NoError(t, err)
+	println(string(content))
 }
 
 func testSuitLargeUDP(t *testing.T, clientPort uint16, testPort uint16) {
