@@ -25,9 +25,9 @@ var _ adapter.Inbound = (*TUIC)(nil)
 
 type TUIC struct {
 	myInboundAdapter
-	tlsConfig    tls.ServerConfig
-	server       *tuic.Service[int]
-	userNameList []string
+	tlsConfig tls.ServerConfig
+	server    *tuic.Service[string]
+	users     map[string]option.TUICUser
 }
 
 func NewTUIC(ctx context.Context, router adapter.Router, logger log.ContextLogger, tag string, options option.TUICInboundOptions) (*TUIC, error) {
@@ -51,7 +51,7 @@ func NewTUIC(ctx context.Context, router adapter.Router, logger log.ContextLogge
 		},
 		tlsConfig: tlsConfig,
 	}
-	service, err := tuic.NewService[int](tuic.ServiceOptions{
+	service, err := tuic.NewService[string](tuic.ServiceOptions{
 		Context:           ctx,
 		Logger:            logger,
 		TLSConfig:         tlsConfig,
@@ -64,52 +64,53 @@ func NewTUIC(ctx context.Context, router adapter.Router, logger log.ContextLogge
 	if err != nil {
 		return nil, err
 	}
-	var userList []int
-	var userNameList []string
+	users := make(map[string]option.TUICUser)
+	var userList []string
 	var userUUIDList [][16]byte
 	var userPasswordList []string
-	for index, user := range options.Users {
+	for _, user := range options.Users {
 		if user.UUID == "" {
-			return nil, E.New("missing uuid for user ", index)
+			return nil, E.New("missing uuid for user ", user.UUID)
+		}
+		if user.Name == "" {
+			user.Name = user.UUID
 		}
 		userUUID, err := uuid.FromString(user.UUID)
 		if err != nil {
-			return nil, E.Cause(err, "invalid uuid for user ", index)
+			return nil, E.Cause(err, "invalid uuid for user ", user.UUID)
 		}
-		userList = append(userList, index)
-		userNameList = append(userNameList, user.Name)
+		users[user.Name] = user
+		userList = append(userList, user.Name)
 		userUUIDList = append(userUUIDList, userUUID)
 		userPasswordList = append(userPasswordList, user.Password)
 	}
 	service.UpdateUsers(userList, userUUIDList, userPasswordList)
 	inbound.server = service
-	inbound.userNameList = userNameList
+	inbound.users = users
 	return inbound, nil
 }
 
 func (h *TUIC) newConnection(ctx context.Context, conn net.Conn, metadata adapter.InboundContext) error {
 	ctx = log.ContextWithNewID(ctx)
 	metadata = h.createMetadata(conn, metadata)
-	userID, _ := auth.UserFromContext[int](ctx)
-	if userName := h.userNameList[userID]; userName != "" {
-		metadata.User = userName
-		h.logger.InfoContext(ctx, "[", userName, "] inbound connection to ", metadata.Destination)
-	} else {
-		h.logger.InfoContext(ctx, "inbound connection to ", metadata.Destination)
+	user, _ := auth.UserFromContext[string](ctx)
+	if _, exist := h.users[user]; !exist {
+		return E.New("user not exist")
 	}
+	metadata.User = user
+	h.logger.InfoContext(ctx, "[", user, "] inbound connection to ", metadata.Destination)
 	return h.router.RouteConnection(ctx, conn, metadata)
 }
 
 func (h *TUIC) newPacketConnection(ctx context.Context, conn N.PacketConn, metadata adapter.InboundContext) error {
 	ctx = log.ContextWithNewID(ctx)
 	metadata = h.createPacketMetadata(conn, metadata)
-	userID, _ := auth.UserFromContext[int](ctx)
-	if userName := h.userNameList[userID]; userName != "" {
-		metadata.User = userName
-		h.logger.InfoContext(ctx, "[", userName, "] inbound packet connection to ", metadata.Destination)
-	} else {
-		h.logger.InfoContext(ctx, "inbound packet connection to ", metadata.Destination)
+	user, _ := auth.UserFromContext[string](ctx)
+	if _, exist := h.users[user]; !exist {
+		return E.New("user not exist")
 	}
+	metadata.User = user
+	h.logger.InfoContext(ctx, "[", user, "] inbound packet connection to ", metadata.Destination)
 	return h.router.RoutePacketConnection(ctx, conn, metadata)
 }
 
@@ -133,4 +134,40 @@ func (h *TUIC) Close() error {
 		h.tlsConfig,
 		common.PtrOrNil(h.server),
 	)
+}
+
+// v2bx
+
+func (h *TUIC) updateUsers() error {
+	userNames := make([]string, 0, len(h.users))
+	userUUIDs := make([][16]byte, 0, len(h.users))
+	userPasswords := make([]string, 0, len(h.users))
+	for n, u := range h.users {
+		userUUID, err := uuid.FromString(u.UUID)
+		if err != nil {
+			return E.Cause(err, "invalid uuid for user ", u.UUID)
+		}
+		userNames = append(userNames, n)
+		userUUIDs = append(userUUIDs, userUUID)
+		userPasswords = append(userPasswords, u.Password)
+	}
+	h.server.UpdateUsers(userNames, userUUIDs, userPasswords)
+	return nil
+}
+
+func (h *TUIC) AddUsers(users []option.TUICUser) error {
+	for _, u := range users {
+		h.users[u.Name] = u
+	}
+
+	return h.updateUsers()
+
+}
+
+func (h *TUIC) DelUsers(names []string) error {
+	for _, n := range names {
+		delete(h.users, n)
+	}
+
+	return h.updateUsers()
 }

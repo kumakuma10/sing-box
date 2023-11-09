@@ -135,7 +135,6 @@ func (h *Hysteria2) newPacketConnection(ctx context.Context, conn N.PacketConn, 
 	if _, exist := h.users[user]; !exist {
 		return E.New("user not exist")
 	}
-
 	metadata.User = user
 	h.logger.InfoContext(ctx, "[", user, "] inbound packet connection to ", metadata.Destination)
 	return h.router.RoutePacketConnection(ctx, conn, metadata)
