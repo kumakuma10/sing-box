@@ -2,13 +2,12 @@ package adapter
 
 import (
 	"context"
-	"github.com/kumakuma10/sing-box/option"
 	"net"
 	"net/netip"
 
 	"github.com/kumakuma10/sing-box/common/geoip"
-	"github.com/sagernet/sing-dns"
-	"github.com/sagernet/sing-tun"
+	dns "github.com/sagernet/sing-dns"
+	tun "github.com/sagernet/sing-tun"
 	"github.com/sagernet/sing/common/control"
 	N "github.com/sagernet/sing/common/network"
 	"github.com/sagernet/sing/service"
@@ -57,7 +56,7 @@ type Router interface {
 	// for v2bx
 	AddInbound(in Inbound) error
 	DelInbound(tag string) error
-	UpdateDnsRules(rules []option.DNSRule) error
+	// UpdateDnsRules(rules []option.DNSRule) error
 }
 
 func ContextWithRouter(ctx context.Context, router Router) context.Context {
