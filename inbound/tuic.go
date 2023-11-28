@@ -9,6 +9,7 @@ import (
 
 	"github.com/kumakuma10/sing-box/adapter"
 	"github.com/kumakuma10/sing-box/common/tls"
+	"github.com/kumakuma10/sing-box/common/uot"
 	C "github.com/kumakuma10/sing-box/constant"
 	"github.com/kumakuma10/sing-box/log"
 	"github.com/kumakuma10/sing-box/option"
@@ -44,7 +45,7 @@ func NewTUIC(ctx context.Context, router adapter.Router, logger log.ContextLogge
 			protocol:      C.TypeTUIC,
 			network:       []string{N.NetworkUDP},
 			ctx:           ctx,
-			router:        router,
+			router:        uot.NewRouter(router, logger),
 			logger:        logger,
 			tag:           tag,
 			listenOptions: options.ListenOptions,

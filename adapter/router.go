@@ -2,14 +2,12 @@ package adapter
 
 import (
 	"context"
-	"net"
 	"net/netip"
 
 	"github.com/kumakuma10/sing-box/common/geoip"
 	dns "github.com/sagernet/sing-dns"
 	tun "github.com/sagernet/sing-tun"
 	"github.com/sagernet/sing/common/control"
-	N "github.com/sagernet/sing/common/network"
 	"github.com/sagernet/sing/service"
 
 	mdns "github.com/miekg/dns"
@@ -24,8 +22,7 @@ type Router interface {
 
 	FakeIPStore() FakeIPStore
 
-	RouteConnection(ctx context.Context, conn net.Conn, metadata InboundContext) error
-	RoutePacketConnection(ctx context.Context, conn N.PacketConn, metadata InboundContext) error
+	ConnectionRouter
 
 	GeoIPReader() *geoip.Reader
 	LoadGeosite(code string) (Rule, error)
@@ -44,6 +41,7 @@ type Router interface {
 	NetworkMonitor() tun.NetworkUpdateMonitor
 	InterfaceMonitor() tun.DefaultInterfaceMonitor
 	PackageManager() tun.PackageManager
+	WIFIState() WIFIState
 	Rules() []Rule
 
 	ClashServer() ClashServer
@@ -84,4 +82,9 @@ type DNSRule interface {
 
 type InterfaceUpdateListener interface {
 	InterfaceUpdated()
+}
+
+type WIFIState struct {
+	SSID  string
+	BSSID string
 }

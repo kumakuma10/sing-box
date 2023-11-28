@@ -17,7 +17,6 @@ import (
 	"github.com/kumakuma10/sing-box/common/dialer"
 	"github.com/kumakuma10/sing-box/common/geoip"
 	"github.com/kumakuma10/sing-box/common/geosite"
-	"github.com/kumakuma10/sing-box/common/mux"
 	"github.com/kumakuma10/sing-box/common/process"
 	"github.com/kumakuma10/sing-box/common/sniff"
 	C "github.com/kumakuma10/sing-box/constant"
@@ -27,9 +26,10 @@ import (
 	"github.com/kumakuma10/sing-box/option"
 	"github.com/kumakuma10/sing-box/outbound"
 	"github.com/kumakuma10/sing-box/transport/fakeip"
-	dns "github.com/sagernet/sing-dns"
-	tun "github.com/sagernet/sing-tun"
-	vmess "github.com/sagernet/sing-vmess"
+	"github.com/sagernet/sing-dns"
+	mux "github.com/sagernet/sing-mux"
+	"github.com/sagernet/sing-tun"
+	"github.com/sagernet/sing-vmess"
 	"github.com/sagernet/sing/common"
 	"github.com/sagernet/sing/common/buf"
 	"github.com/sagernet/sing/common/bufio"
@@ -87,7 +87,8 @@ type Router struct {
 	clashServer                        adapter.ClashServer
 	v2rayServer                        adapter.V2RayServer
 	platformInterface                  platform.Interface
-	actionLock                         sync.RWMutex
+	needWIFIState                      bool
+	wifiState                          adapter.WIFIState
 }
 
 func NewRouter(
@@ -118,6 +119,7 @@ func NewRouter(
 		defaultMark:           options.DefaultMark,
 		pauseManager:          pause.ManagerFromContext(ctx),
 		platformInterface:     platformInterface,
+		needWIFIState:         hasRule(options.Rules, isWIFIRule) || hasDNSRule(dnsOptions.Rules, isWIFIDNSRule),
 	}
 	router.dnsClient = dns.NewClient(dns.ClientOptions{
 		DisableCache:     dnsOptions.DNSClientOptions.DisableCache,
@@ -330,6 +332,11 @@ func NewRouter(
 		service.ContextWith[serviceNTP.TimeService](ctx, timeService)
 		router.timeService = timeService
 	}
+	if platformInterface != nil && router.interfaceMonitor != nil && router.needWIFIState {
+		router.interfaceMonitor.RegisterCallback(func(_ int) {
+			router.updateWIFIState()
+		})
+	}
 	return router, nil
 }
 
@@ -470,6 +477,9 @@ func (r *Router) Start() error {
 		r.geositeCache = nil
 		r.geositeReader = nil
 	}
+	if r.needWIFIState {
+		r.updateWIFIState()
+	}
 	for i, rule := range r.rules {
 		err := rule.Start()
 		if err != nil {
@@ -608,30 +618,13 @@ func (r *Router) RouteConnection(ctx context.Context, conn net.Conn, metadata ad
 	metadata.Network = N.NetworkTCP
 	switch metadata.Destination.Fqdn {
 	case mux.Destination.Fqdn:
-		r.logger.InfoContext(ctx, "inbound multiplex connection")
-		handler := adapter.NewUpstreamHandler(metadata, r.RouteConnection, r.RoutePacketConnection, r)
-		return mux.HandleConnection(ctx, handler, r.logger, conn, adapter.UpstreamMetadata(metadata))
+		return E.New("global multiplex is deprecated since sing-box v1.7.0, enable multiplex in inbound options instead.")
 	case vmess.MuxDestination.Fqdn:
-		r.logger.InfoContext(ctx, "inbound legacy multiplex connection")
-		return vmess.HandleMuxConnection(ctx, conn, adapter.NewUpstreamHandler(metadata, r.RouteConnection, r.RoutePacketConnection, r))
+		return E.New("global multiplex (v2ray legacy) not supported since sing-box v1.7.0.")
 	case uot.MagicAddress:
-		request, err := uot.ReadRequest(conn)
-		if err != nil {
-			return E.Cause(err, "read UoT request")
-		}
-		if request.IsConnect {
-			r.logger.InfoContext(ctx, "inbound UoT connect connection to ", request.Destination)
-		} else {
-			r.logger.InfoContext(ctx, "inbound UoT connection to ", request.Destination)
-		}
-		metadata.Domain = metadata.Destination.Fqdn
-		metadata.Destination = request.Destination
-		return r.RoutePacketConnection(ctx, uot.NewConn(conn, *request), metadata)
+		return E.New("global UoT not supported since sing-box v1.7.0.")
 	case uot.LegacyMagicAddress:
-		r.logger.InfoContext(ctx, "inbound legacy UoT connection")
-		metadata.Domain = metadata.Destination.Fqdn
-		metadata.Destination = M.Socksaddr{Addr: netip.IPv4Unspecified()}
-		return r.RoutePacketConnection(ctx, uot.NewConn(conn, uot.Request{}), metadata)
+		return E.New("global UoT (legacy) not supported since sing-box v1.7.0.")
 	}
 
 	if r.fakeIPStore != nil && r.fakeIPStore.Contains(metadata.Destination.Addr) {
@@ -971,6 +964,10 @@ func (r *Router) Rules() []adapter.Rule {
 	return r.rules
 }
 
+func (r *Router) WIFIState() adapter.WIFIState {
+	return r.wifiState
+}
+
 func (r *Router) NetworkMonitor() tun.NetworkUpdateMonitor {
 	return r.networkMonitor
 }
@@ -1049,4 +1046,15 @@ func (r *Router) ResetNetwork() error {
 		transport.Reset()
 	}
 	return nil
+}
+
+func (r *Router) updateWIFIState() {
+	if r.platformInterface == nil {
+		return
+	}
+	state := r.platformInterface.ReadWIFIState()
+	if state != r.wifiState {
+		r.wifiState = state
+		r.logger.Info("updated WIFI state: SSID=", state.SSID, ", BSSID=", state.BSSID)
+	}
 }

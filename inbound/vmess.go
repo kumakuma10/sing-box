@@ -6,12 +6,14 @@ import (
 	"os"
 
 	"github.com/kumakuma10/sing-box/adapter"
+	"github.com/kumakuma10/sing-box/common/mux"
 	"github.com/kumakuma10/sing-box/common/tls"
+	"github.com/kumakuma10/sing-box/common/uot"
 	C "github.com/kumakuma10/sing-box/constant"
 	"github.com/kumakuma10/sing-box/log"
 	"github.com/kumakuma10/sing-box/option"
 	"github.com/kumakuma10/sing-box/transport/v2ray"
-	vmess "github.com/sagernet/sing-vmess"
+	"github.com/sagernet/sing-vmess"
 	"github.com/sagernet/sing-vmess/packetaddr"
 	"github.com/sagernet/sing/common"
 	"github.com/sagernet/sing/common/auth"
@@ -41,12 +43,18 @@ func NewVMess(ctx context.Context, router adapter.Router, logger log.ContextLogg
 			protocol:      C.TypeVMess,
 			network:       []string{N.NetworkTCP},
 			ctx:           ctx,
-			router:        router,
+			router:        uot.NewRouter(router, logger),
 			logger:        logger,
 			tag:           tag,
 			listenOptions: options.ListenOptions,
 		},
-		ctx: ctx,
+		ctx:   ctx,
+		users: options.Users,
+	}
+	var err error
+	inbound.router, err = mux.NewRouterWithOptions(inbound.router, logger, common.PtrValueOrDefault(options.Multiplex))
+	if err != nil {
+		return nil, err
 	}
 	var serviceOptions []vmess.ServiceOption
 	if timeFunc := ntp.TimeFuncFromContext(ctx); timeFunc != nil {
@@ -67,7 +75,7 @@ func NewVMess(ctx context.Context, router adapter.Router, logger log.ContextLogg
 		users[name] = user
 	}
 	inbound.users = users
-	err := service.UpdateUsers(common.Map(options.Users, func(it option.VMessUser) string {
+	err = service.UpdateUsers(common.Map(options.Users, func(it option.VMessUser) string {
 		if it.Name == "" {
 			return it.UUID
 		}

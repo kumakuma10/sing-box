@@ -6,13 +6,15 @@ import (
 	"os"
 
 	"github.com/kumakuma10/sing-box/adapter"
+	"github.com/kumakuma10/sing-box/common/mux"
 	"github.com/kumakuma10/sing-box/common/tls"
+	"github.com/kumakuma10/sing-box/common/uot"
 	C "github.com/kumakuma10/sing-box/constant"
 	"github.com/kumakuma10/sing-box/log"
 	"github.com/kumakuma10/sing-box/option"
 	"github.com/kumakuma10/sing-box/transport/v2ray"
 	"github.com/kumakuma10/sing-box/transport/vless"
-	vmess "github.com/sagernet/sing-vmess"
+	"github.com/sagernet/sing-vmess"
 	"github.com/sagernet/sing-vmess/packetaddr"
 	"github.com/sagernet/sing/common"
 	"github.com/sagernet/sing/common/auth"
@@ -41,12 +43,17 @@ func NewVLESS(ctx context.Context, router adapter.Router, logger log.ContextLogg
 			protocol:      C.TypeVLESS,
 			network:       []string{N.NetworkTCP},
 			ctx:           ctx,
-			router:        router,
+			router:        uot.NewRouter(router, logger),
 			logger:        logger,
 			tag:           tag,
 			listenOptions: options.ListenOptions,
 		},
 		ctx: ctx,
+	}
+	var err error
+	inbound.router, err = mux.NewRouterWithOptions(inbound.router, logger, common.PtrValueOrDefault(options.Multiplex))
+	if err != nil {
+		return nil, err
 	}
 	service := vless.NewService[string](logger, adapter.NewUpstreamContextHandler(inbound.newConnection, inbound.newPacketConnection, inbound))
 	users := make(map[string]option.VLESSUser)
@@ -67,7 +74,6 @@ func NewVLESS(ctx context.Context, router adapter.Router, logger log.ContextLogg
 	service.UpdateUsers(userNameList, userUUIDList, userFlowList)
 	inbound.service = service
 	inbound.users = users
-	var err error
 	if options.TLS != nil {
 		inbound.tlsConfig, err = tls.NewServer(ctx, logger, common.PtrValueOrDefault(options.TLS))
 		if err != nil {

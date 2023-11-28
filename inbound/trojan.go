@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/kumakuma10/sing-box/adapter"
+	"github.com/kumakuma10/sing-box/common/mux"
 	"github.com/kumakuma10/sing-box/common/tls"
 	C "github.com/kumakuma10/sing-box/constant"
 	"github.com/kumakuma10/sing-box/log"
@@ -95,6 +96,10 @@ func NewTrojan(ctx context.Context, router adapter.Router, logger log.ContextLog
 		if err != nil {
 			return nil, E.Cause(err, "create server transport: ", options.Transport.Type)
 		}
+	}
+	inbound.router, err = mux.NewRouterWithOptions(inbound.router, logger, common.PtrValueOrDefault(options.Multiplex))
+	if err != nil {
+		return nil, err
 	}
 	inbound.service = service
 	inbound.connHandler = inbound
