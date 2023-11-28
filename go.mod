@@ -22,8 +22,6 @@ require (
 	github.com/oschwald/maxminddb-golang v1.12.0
 	github.com/sagernet/bbolt v0.0.0-20231014093535-ea5cb2fe9f0a
 	github.com/sagernet/cloudflare-tls v0.0.0-20230829051644-4a68352d0c4a
-	github.com/sagernet/gomobile v0.0.0-20230915142329-c6740b6d2950
-	github.com/sagernet/gvisor v0.0.0-20231119034329-07cfb6aaf930
 	github.com/sagernet/quic-go v0.40.0
 	github.com/sagernet/reality v0.0.0-20230406110435-ee17307e7691
 	github.com/sagernet/sing v0.2.18-0.20231124125253-2dcabf4bfcbc
@@ -38,9 +36,7 @@ require (
 	github.com/sagernet/smux v0.0.0-20230312102458-337ec2a5af37
 	github.com/sagernet/tfo-go v0.0.0-20230816093905-5a5c285d44a6
 	github.com/sagernet/utls v0.0.0-20230309024959-6732c2ab36f2
-	github.com/sagernet/wireguard-go v0.0.0-20230807125731-5d4a7ef2dc5f
 	github.com/sagernet/ws v0.0.0-20231030053741-7d481eb31bed
-	github.com/spf13/cobra v1.8.0
 	github.com/stretchr/testify v1.8.4
 	go.uber.org/zap v1.26.0
 	go4.org/netipx v0.0.0-20230824141953-6213f710f925
@@ -76,7 +72,7 @@ require (
 	github.com/quic-go/qpack v0.4.0 // indirect
 	github.com/quic-go/qtls-go1-20 v0.4.1 // indirect
 	github.com/sagernet/go-tun2socks v1.16.12-0.20220818015926-16cb67876a61 // indirect
-	github.com/sagernet/gvisor v0.0.0-20230930141345-5fef6f2e17ab // indirect
+	github.com/sagernet/gvisor v0.0.0-20231119034329-07cfb6aaf930 // indirect
 	github.com/sagernet/netlink v0.0.0-20220905062125-8043b4a9aa97 // indirect
 	github.com/scjalliance/comshim v0.0.0-20230315213746-5e51f40bd3b9 // indirect
 	github.com/u-root/uio v0.0.0-20230305220412-3e8cd9d6bf63 // indirect

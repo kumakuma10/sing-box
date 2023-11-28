@@ -26,10 +26,10 @@ import (
 	"github.com/kumakuma10/sing-box/option"
 	"github.com/kumakuma10/sing-box/outbound"
 	"github.com/kumakuma10/sing-box/transport/fakeip"
-	"github.com/sagernet/sing-dns"
+	dns "github.com/sagernet/sing-dns"
 	mux "github.com/sagernet/sing-mux"
-	"github.com/sagernet/sing-tun"
-	"github.com/sagernet/sing-vmess"
+	tun "github.com/sagernet/sing-tun"
+	vmess "github.com/sagernet/sing-vmess"
 	"github.com/sagernet/sing/common"
 	"github.com/sagernet/sing/common/buf"
 	"github.com/sagernet/sing/common/bufio"
@@ -89,6 +89,7 @@ type Router struct {
 	platformInterface                  platform.Interface
 	needWIFIState                      bool
 	wifiState                          adapter.WIFIState
+	actionLock                         sync.Mutex
 }
 
 func NewRouter(

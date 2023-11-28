@@ -13,7 +13,7 @@ import (
 	"github.com/kumakuma10/sing-box/log"
 	"github.com/kumakuma10/sing-box/option"
 	"github.com/kumakuma10/sing-box/transport/v2ray"
-	"github.com/sagernet/sing-vmess"
+	vmess "github.com/sagernet/sing-vmess"
 	"github.com/sagernet/sing-vmess/packetaddr"
 	"github.com/sagernet/sing/common"
 	"github.com/sagernet/sing/common/auth"
@@ -48,8 +48,7 @@ func NewVMess(ctx context.Context, router adapter.Router, logger log.ContextLogg
 			tag:           tag,
 			listenOptions: options.ListenOptions,
 		},
-		ctx:   ctx,
-		users: options.Users,
+		ctx: ctx,
 	}
 	var err error
 	inbound.router, err = mux.NewRouterWithOptions(inbound.router, logger, common.PtrValueOrDefault(options.Multiplex))
@@ -80,7 +79,6 @@ func NewVMess(ctx context.Context, router adapter.Router, logger log.ContextLogg
 			return it.UUID
 		}
 		return it.Name
-
 	}), common.Map(options.Users, func(it option.VMessUser) string {
 		return it.UUID
 	}), common.Map(options.Users, func(it option.VMessUser) int {
