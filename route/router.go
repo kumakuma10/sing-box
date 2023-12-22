@@ -89,6 +89,7 @@ type Router struct {
 	platformInterface                  platform.Interface
 	needWIFIState                      bool
 	wifiState                          adapter.WIFIState
+	started                            bool
 	actionLock                         sync.Mutex
 }
 
@@ -573,6 +574,11 @@ func (r *Router) Close() error {
 	return err
 }
 
+func (r *Router) PostStart() error {
+	r.started = true
+	return nil
+}
+
 func (r *Router) Outbound(tag string) (adapter.Outbound, bool) {
 	outbound, loaded := r.outboundByTag[tag]
 	return outbound, loaded
@@ -1029,8 +1035,11 @@ func (r *Router) notifyNetworkUpdate(event int) {
 		}
 	}
 
-	r.ResetNetwork()
-	return
+	if !r.started {
+		return
+	}
+
+	_ = r.ResetNetwork()
 }
 
 func (r *Router) ResetNetwork() error {
