@@ -1,8 +1,8 @@
 package option
 
 import (
-	"github.com/kumakuma10/sing-box/common/json"
 	E "github.com/sagernet/sing/common/exceptions"
+	"github.com/sagernet/sing/common/json"
 )
 
 type OnDemandOptions struct {

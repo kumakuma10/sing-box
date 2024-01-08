@@ -3,10 +3,10 @@ package option
 import (
 	"bytes"
 
-	"github.com/kumakuma10/sing-box/common/badjson"
-	"github.com/kumakuma10/sing-box/common/json"
 	"github.com/sagernet/sing/common"
 	E "github.com/sagernet/sing/common/exceptions"
+	"github.com/sagernet/sing/common/json"
+	"github.com/sagernet/sing/common/json/badjson"
 )
 
 func ToMap(v any) (*badjson.JSONObject, error) {

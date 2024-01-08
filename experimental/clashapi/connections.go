@@ -7,8 +7,8 @@ import (
 	"time"
 
 	"github.com/kumakuma10/sing-box/adapter"
-	"github.com/kumakuma10/sing-box/common/json"
 	"github.com/kumakuma10/sing-box/experimental/clashapi/trafficontrol"
+	"github.com/sagernet/sing/common/json"
 	"github.com/sagernet/ws"
 	"github.com/sagernet/ws/wsutil"
 

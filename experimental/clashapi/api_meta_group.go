@@ -9,11 +9,11 @@ import (
 	"time"
 
 	"github.com/kumakuma10/sing-box/adapter"
-	"github.com/kumakuma10/sing-box/common/badjson"
 	"github.com/kumakuma10/sing-box/common/urltest"
 	"github.com/kumakuma10/sing-box/outbound"
 	"github.com/sagernet/sing/common"
 	"github.com/sagernet/sing/common/batch"
+	"github.com/sagernet/sing/common/json/badjson"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/render"

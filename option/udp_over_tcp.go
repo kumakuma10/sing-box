@@ -1,7 +1,7 @@
 package option
 
 import (
-	"github.com/kumakuma10/sing-box/common/json"
+	"github.com/sagernet/sing/common/json"
 	"github.com/sagernet/sing/common/uot"
 )
 
