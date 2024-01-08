@@ -4,8 +4,6 @@ import (
 	"context"
 	"os"
 
-	"os"
-
 	"github.com/kumakuma10/sing-box/adapter"
 	C "github.com/kumakuma10/sing-box/constant"
 	"github.com/kumakuma10/sing-box/log"
