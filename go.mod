@@ -8,7 +8,7 @@ require (
 	github.com/cloudflare/circl v1.3.7
 	github.com/cretz/bine v0.2.0
 	github.com/fsnotify/fsnotify v1.7.0
-	github.com/go-chi/chi/v5 v5.0.11
+	github.com/go-chi/chi/v5 v5.0.12
 	github.com/go-chi/cors v1.2.1
 	github.com/go-chi/render v1.0.3
 	github.com/gofrs/uuid/v5 v5.0.0
@@ -24,27 +24,27 @@ require (
 	github.com/sagernet/cloudflare-tls v0.0.0-20231208171750-a4483c1b7cd1
 	github.com/sagernet/quic-go v0.40.1
 	github.com/sagernet/reality v0.0.0-20230406110435-ee17307e7691
-	github.com/sagernet/sing v0.3.2
+	github.com/sagernet/sing v0.3.5
 	github.com/sagernet/sing-dns v0.1.12
 	github.com/sagernet/sing-mux v0.2.0
 	github.com/sagernet/sing-quic v0.1.8
 	github.com/sagernet/sing-shadowsocks v0.2.6
 	github.com/sagernet/sing-shadowsocks2 v0.2.0
 	github.com/sagernet/sing-shadowtls v0.1.4
-	github.com/sagernet/sing-tun v0.2.2-beta.1
+	github.com/sagernet/sing-tun v0.2.3
 	github.com/sagernet/sing-vmess v0.1.8
 	github.com/sagernet/smux v0.0.0-20231208180855-7041f6ea79e7
 	github.com/sagernet/tfo-go v0.0.0-20231209031829-7b5343ac1dc6
 	github.com/sagernet/utls v1.5.4
 	github.com/sagernet/wireguard-go v0.0.0-20231215174105-89dec3b2f3e8
 	github.com/sagernet/ws v0.0.0-20231204124109-acfe8907c854
-	github.com/stretchr/testify v1.8.4
-	go.uber.org/zap v1.26.0
+	github.com/stretchr/testify v1.9.0
+	go.uber.org/zap v1.27.0
 	go4.org/netipx v0.0.0-20231129151722-fdeea329fbba
-	golang.org/x/crypto v0.18.0
-	golang.org/x/net v0.20.0
-	golang.org/x/sys v0.17.0
-	google.golang.org/grpc v1.60.1
+	golang.org/x/crypto v0.20.0
+	golang.org/x/net v0.21.0
+	golang.org/x/sys v0.18.0
+	google.golang.org/grpc v1.62.0
 	google.golang.org/protobuf v1.32.0
 )
 
@@ -85,7 +85,7 @@ require (
 	golang.org/x/text v0.14.0 // indirect
 	golang.org/x/time v0.5.0 // indirect
 	golang.org/x/tools v0.17.0 // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20231002182017-d307bd883b97 // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20240123012728-ef4313101c80 // indirect
 	gopkg.in/check.v1 v1.0.0-20200227125254-8fa46927fb4f // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	lukechampine.com/blake3 v1.2.1 // indirect
